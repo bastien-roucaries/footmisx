@@ -1,5 +1,5 @@
 %\iffalse meta-comment, etc.
-%% This is footmisc.dtx, and it's -*-LaTeX-*- text
+%% This is footmisx.dtx, and it's -*-LaTeX-*- text
 %
 % We use the same body for the \cs{ProvidesFile} as for the
 % \cs{ProvidesPackage} command.
@@ -9,18 +9,18 @@
 \NeedsTeXFormat{LaTeX2e}
 %</!debugins>
 %<*dtx>
-\ProvidesFile{footmisc.dtx}%
+\ProvidesFile{footmisx.dtx}%
 %</dtx>
-%<package>\ProvidesPackage{footmisc}%
+%<package>\ProvidesPackage{footmisx}%
 %<*!debugins>
         [2011/06/06 v5.5b
 %</!debugins>
 %<package>     a miscellany of footnote facilities%
 %<*dtx>
-               footmisc package source file%
+               footmisx package source file%
 %</dtx>
 %<*!debugins>
-                   ]% $Id: footmisc.dtx,v 4.25 2011/06/06 14:25:44 rf10 Exp rf10 $
+                   ]% $Id: footmisx.dtx,v 4.25 2011/06/06 14:25:44 rf10 Exp rf10 $
 %</!debugins>
 %    \end{macrocode}
 %
@@ -49,7 +49,7 @@
 \DoNotIndex{\relax,\renewcommand,\S,\setbox,\setcounter}
 \DoNotIndex{\skip,\space,\the,\typeout,\vbox,\vskip}
 \DoNotIndex{\wd,\xdef,\@}
-\GetFileInfo{footmisc.dtx}
+\GetFileInfo{footmisx.dtx}
 \EnableCrossrefs
 % to get documented source of the package, comment out the next line,
 % and uncomment the following one; otherwise, create yourself
@@ -59,7 +59,7 @@
 %\AlsoImplementation
 \setcounter{StandardModuleDepth}{1}
 \begin{document}
-\DocInput{footmisc.dtx}
+\DocInput{footmisx.dtx}
 \end{document}
 %</driver>
 %    \end{macrocode}
@@ -67,7 +67,7 @@
 %
 % \CheckSum{1711}
 %
-% \title{\texttt{footmisc} ---\\
+% \title{\texttt{footmisx} ---\\
 %        a portmanteau package\\
 %        for customising footnotes in \LaTeX\thanks{This file has
 %          version number \fileversion, last revised \filedate}}
@@ -79,7 +79,7 @@
 %
 % \section*{Copyright statement}
 %
-% \noindent Program: \texttt{footmisc.dtx}\par
+% \noindent Program: \texttt{footmisx.dtx}\par
 % \noindent Copyright 1995 1996 1998 1999 2001--2003 2008 2009 Robin Fairbairns
 %
 % This program is offered under the terms
@@ -100,11 +100,11 @@
 % In its first form, it was known as the ``footnote'' package, but by
 % the time I had released it to CTAN, that name had already been
 % used by a package written by Mark Wooding.  So the package is now
-% known (as you can see) as ``footmisc''.
+% known (as you can see) as ``footmisx''.
 %
 % \section{User interface~--- package options}
 %
-% The \textsf{footmisc} package provides several different
+% The \textsf{footmisx} package provides several different
 % customisations of the way foonotes are represented in \LaTeXe{}
 % documents (the sources of the code in this package are various, but
 % all of it has been massaged by the author; where the code comes from
@@ -115,7 +115,7 @@
 % option in the |\usepackage| command, and for most, nothing else
 % needs to be done.  For example, to use a useful
 % and consistent set, the author invokes the package with the
-% command |\usepackage[perpage,para,symbol*]{footmisc}|.
+% command |\usepackage[perpage,para,symbol*]{footmisx}|.
 %
 % For a small number of options, there are additional parameters
 % available; these are described in the subsections below.
@@ -189,7 +189,7 @@
 % \texttt{ragged} option simply sets \cs{footnotelayout} to set
 % \cs{raggedright} or \cs{RaggedRight} as appropriate.  (If you intend
 % to use the \textsf{ragged2e} package, load it before
-% \textsf{footmisc}~--- if \textsf{footmisc} finds \cs{RaggedRight} is
+% \textsf{footmisx}~--- if \textsf{footmisx} finds \cs{RaggedRight} is
 % available, it automatically uses it in place of \cs{raggedright}.)
 %
 % \subsection{Option \texttt{symbol}}
@@ -429,7 +429,7 @@
 %
 % \section{User interface~--- interactions with other packages}
 %
-% The \textsf{footmisc} package modifies several parts of the \LaTeX{}
+% The \textsf{footmisx} package modifies several parts of the \LaTeX{}
 % kernel; what gets modified depends on the options you select.  This
 % behaviour can cause problems with other packages, particularly those
 % that also modify the kernel.
@@ -440,22 +440,22 @@
 %   modifies the way line spacing is calculated in footnotes.
 %   \textsf{Footmisc} knows about this, and preserves the change.
 %   However, you \emph{must} load \textsf{setspace} \emph{before}
-%   \textsf{footmisc}.
+%   \textsf{footmisx}.
 % \item[\normalfont\textsf{memoir} class] The class emulates
 %   \textsf{setspace}, and we detect that emulation and deal with it
 %   in the same way as \textsf{setspace}.
 % \item[\normalfont\textsf{hyperref}] The \textsf{hyperref} package
 %   has ambitions to make hyperlinks from footnote marks to the
 %   corresponding footnote body; naturally this causes grief to
-%   \textsf{footmisc}, and unfortunately no remedy is currently
-%   known.  If you use \textsf{footmisc}, suppress hyperref's
+%   \textsf{footmisx}, and unfortunately no remedy is currently
+%   known.  If you use \textsf{footmisx}, suppress hyperref's
 %   hyper-footnotes, by loading it as:\\
 %   \quad\verb|\usepackage[hyperfootnotes=false,...]{hyperref}|\\
 %   Further work on the interaction between the two packages is
 %   proposed, but not yet scheduled.
 % \item[\normalfont\textsf{manyfoot}] The \textsf{manyfoot} package
 %   permits several independent sequences of footnotes.  Some
-%   preliminary work towards interworking with \textsf{footmisc} has
+%   preliminary work towards interworking with \textsf{footmisx} has
 %   been completed, but more remains to be done at the time of
 %   writing.
 % \end{description}
@@ -587,7 +587,7 @@
 %    \begin{macrocode}
 \newif\ifFN@para  \FN@parafalse
 \DeclareOption{para}{\ifFN@sidefn
-    \PackageError{footmisc}{Option "\CurrentOption" incompatible with
+    \PackageError{footmisx}{Option "\CurrentOption" incompatible with
       option "side"}%
       {I shall ignore "\CurrentOption"}%
   \else
@@ -605,7 +605,7 @@
 %    \begin{macrocode}
 \newif\ifFN@sidefn  \FN@sidefnfalse
 \DeclareOption{side}{\ifFN@para
-    \PackageError{footmisc}{Option "\CurrentOption" incompatible with
+    \PackageError{footmisx}{Option "\CurrentOption" incompatible with
       option "para"}%
       {I shall ignore "\CurrentOption"}%
   \else
@@ -1813,7 +1813,7 @@
 % \begin{macro}{\FN@mf@check}
 % This (revised) code derives from a suggestion by Alexander Rozhenko
 % (the author of the \textit{manyfoot} package): the intention is that
-% \textit{footmisc} and \textit{manyfoot} should be able to
+% \textit{footmisx} and \textit{manyfoot} should be able to
 % `interwork', in the sense that each would recognise the other's
 % footnote marks and behave appropriately.  The trick is that
 % both \cs{footnote}  and \cs{footnotemark} insert a marker (a
@@ -1960,7 +1960,7 @@
   \@bsphack
   \@ifundefined{FN@fnsymbol@#1}%
   {%
-    \PackageError{footmisc}{Symbol style "#1" not known}%
+    \PackageError{footmisx}{Symbol style "#1" not known}%
     \@eha
   }{%
     \expandafter\let\expandafter\@fnsymbol\csname
@@ -2031,9 +2031,9 @@
 }
 \def\@DefineFNsymbols@#1[#2]#3{%
   \expandafter\ifx\csname FN@fnsymbol@#1\endcsname\relax
-    \PackageInfo{footmisc}{Declaring symbol style #1}%
+    \PackageInfo{footmisx}{Declaring symbol style #1}%
   \else
-    \PackageWarning{footmisc}{Redeclaring symbol style #1}%
+    \PackageWarning{footmisx}{Redeclaring symbol style #1}%
   \fi
   \toks@{}%
   \def\@tempb{\end}%
@@ -2085,9 +2085,9 @@
                 {\@tempswbfalse\@DefineFNsymbolsTM}}%
 \newcommand{\@DefineFNsymbolsTM}[2]{%
   \expandafter\ifx\csname FN@fnsymbol@#1\endcsname\relax
-    \PackageInfo{footmisc}{Declaring symbol style #1}%
+    \PackageInfo{footmisx}{Declaring symbol style #1}%
   \else
-    \PackageWarning{footmisc}{Redeclaring symbol style #1}%
+    \PackageWarning{footmisx}{Redeclaring symbol style #1}%
   \fi
   \toks@{}%
   \def\@tempb{\end}%
@@ -2128,9 +2128,9 @@
 %    \begin{macrocode}
 \@ifundefined{TextOrMath}{%
   \@ifundefined{eTeXversion}{%
-    \PackageError{footmisc}{Can't define commands for footnote symbol}%
+    \PackageError{footmisx}{Can't define commands for footnote symbol}%
                            {Use e-LaTeX, or load package fixltx2e before 
-                             footmisc}%
+                             footmisx}%
   }{%
     \protected\expandafter\def\csname TextOrMath\space\endcsname{%
       \ifmmode \expandafter\@secondoftwo
@@ -2153,7 +2153,7 @@
 %    \begin{macrocode}
 \def\FN@orange#1{%
   \@bsphack
-  \PackageInfo{footmisc}{Footnote number \number#1 out of range}%
+  \PackageInfo{footmisx}{Footnote number \number#1 out of range}%
   \protect\@fnsymbol@orange
   \@esphack
 }
@@ -2161,7 +2161,7 @@
 \AtEndDocument{\@diagnose@fnsymbol@orange}
 \def\@fnsymbol@orange{%
   \gdef\@diagnose@fnsymbol@orange{%
-    \PackageWarningNoLine{footmisc}{Some footnote number(s)
+    \PackageWarningNoLine{footmisx}{Some footnote number(s)
       were out of range
       \MessageBreak
       see log for details%
