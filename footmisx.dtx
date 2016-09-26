@@ -1119,7 +1119,7 @@
 % footnotes:
 %    \begin{macrocode}
 \ifFN@para
-  \renewcommand\@footnotetext[1]{%
+  \newcommand\@footmisxnotetext[1]{%
     \insert\footins{%
 %    \end{macrocode}
 % insert compatibility code with |setspace.sty| if necessary
@@ -1182,7 +1182,7 @@
 %    \begin{macrocode}
 \else
   \ifFN@sidefn
-    \renewcommand\@footnotetext[1]{%
+    \newcommand\@footmisxnotetext[1]{%
       \marginpar{%
 %    \end{macrocode}
 % insert compatibility code with |setspace.sty| if necessary
@@ -1203,7 +1203,7 @@
       \FN@mf@prepare
     }%
   \else
-    \renewcommand\@footnotetext[1]{%
+    \newcommand\@footmisxnotetext[1]{%
       \insert\footins{%
 %    \end{macrocode}
 % insert compatibility code with \textsf{setspace} if necessary
@@ -1233,7 +1233,15 @@
   \fi
 \fi
 %    \end{macrocode}
-%
+% Now define \cs{@footnotetext} to be \cs{@footmisxnotetext}
+%    \begin{macrocode}
+\@ifpackageloaded{hyperref}
+{
+  \let\H@@footnotetext\@footmisxnotetext
+}{
+  \renewcommand{\@footnotetext}[1]{\@footmisxnotetext{#1}}
+}
+%    \end{macrocode}
 %
 % \subsection{Support code for paragraph footnotes}
 %
