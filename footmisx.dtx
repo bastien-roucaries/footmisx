@@ -13,7 +13,7 @@
 %</dtx>
 %<package>\ProvidesPackage{footmisx}%
 %<*!debugins>
-        [2011/06/06 v5.5b
+        [2016/09/29 v5.5b
 %</!debugins>
 %<package>     a miscellany of footnote facilities%
 %<*dtx>
@@ -55,8 +55,8 @@
 % and uncomment the following one; otherwise, create yourself
 % (somewhere on your LaTeX input path) a file ltxdoc.cfg that contains
 % simply          \AtBeginDocument{\AlsoImplementation}
-\OnlyDescription
-%\AlsoImplementation
+%\OnlyDescription
+\AlsoImplementation
 \setcounter{StandardModuleDepth}{1}
 \begin{document}
 \DocInput{footmisx.dtx}
@@ -65,13 +65,14 @@
 %    \end{macrocode}
 % \fi
 %
-% \CheckSum{1711}
+%
 %
 % \title{\texttt{footmisx} ---\\
 %        a portmanteau package\\
 %        for customising footnotes in \LaTeX\thanks{This file has
 %          version number \fileversion, last revised \filedate}}
-% \author{Robin Fairbairns\thanks{University of Cambridge Computer
+% \author{Bastien Roucari\`es formerly
+      Robin Fairbairns\thanks{University of Cambridge Computer
 %     Laboratory, William Gates Building, J.\,J. Thompson Avenue, 
 %     Cambridge, CB2 0FD, UK
 %     (\texttt{rf10<snail-shape>cam.ac.uk})}}
@@ -81,6 +82,7 @@
 %
 % \noindent Program: \texttt{footmisx.dtx}\par
 % \noindent Copyright 1995 1996 1998 1999 2001--2003 2008 2009 Robin Fairbairns
+% \noindent Copyright 2016 Bastien Roucari\`es
 %
 % This program is offered under the terms
 % of the LaTeX Project Public License, version 1.3c of this license or
@@ -93,14 +95,18 @@
 %
 % \section*{History}
 %
-% This package originated as support of a personal project, which I
+% This package is based of  Robin Fairbairns footmisc package.
+%
+% This package originated as support of a personal project, which Robin
 % was switching to \LaTeX{} 2e over the Christmas holiday period of
 % 1993, using the first \ensuremath{\beta} release.
 %
 % In its first form, it was known as the ``footnote'' package, but by
 % the time I had released it to CTAN, that name had already been
 % used by a package written by Mark Wooding.  So the package is now
-% known (as you can see) as ``footmisx''.
+% known (as you can see) as ``footmisc''.
+%
+% In 2016 it was forked as footmisx
 %
 % \section{User interface~--- package options}
 %
@@ -438,7 +444,7 @@
 % \begin{description}
 % \item[\normalfont\textsf{setspace}] The \textsf{setspace} package
 %   modifies the way line spacing is calculated in footnotes.
-%   \textsf{Footmisc} knows about this, and preserves the change.
+%   \textsf{footmisx} knows about this, and preserves the change.
 %   However, you \emph{must} load \textsf{setspace} \emph{before}
 %   \textsf{footmisx}.
 % \item[\normalfont\textsf{memoir} class] The class emulates
@@ -446,13 +452,10 @@
 %   in the same way as \textsf{setspace}.
 % \item[\normalfont\textsf{hyperref}] The \textsf{hyperref} package
 %   has ambitions to make hyperlinks from footnote marks to the
-%   corresponding footnote body; naturally this causes grief to
-%   \textsf{footmisx}, and unfortunately no remedy is currently
-%   known.  If you use \textsf{footmisx}, suppress hyperref's
-%   hyper-footnotes, by loading it as:\\
-%   \quad\verb|\usepackage[hyperfootnotes=false,...]{hyperref}|\\
-%   Further work on the interaction between the two packages is
-%   proposed, but not yet scheduled.
+%   corresponding footnote body;  \textsf{footmisx} knows about this,
+%   and preserves hyperlink.
+%   However, you \emph{must} load \textsf{setspace} \emph{before}
+%   \textsf{footmisx}.
 % \item[\normalfont\textsf{manyfoot}] The \textsf{manyfoot} package
 %   permits several independent sequences of footnotes.  Some
 %   preliminary work towards interworking with \textsf{footmisx} has
@@ -1834,21 +1837,28 @@
 \ifFN@multiplefootnote
   \providecommand*{\multiplefootnotemarker}{3sp}
   \providecommand*{\multfootsep}{,}
-  \CheckCommand*\@footnotemark{%
-    \leavevmode
-    \ifhmode\edef\@x@sf{\the\spacefactor}\nobreak\fi
-    \@makefnmark
-    \ifhmode\spacefactor\@x@sf\fi
-    \relax
+  \@ifpackageloaded{hyperref}{
+    \newcommand*{\@footmicx@makefnmark}{%
+      \stepcounter{Hfootnote}%
+      \global\let\Hy@saved@currentHref\@currentHref%
+      \hyper@makecurrent{Hfootnote}%
+      \global\let\Hy@footnote@currentHref\@currentHref%
+      \global\let\@currentHref\Hy@saved@currentHref%
+      \hyper@linkstart{link}{\Hy@footnote@currentHref}%
+      \@makefnmark%
+      \hyper@linkend%
+    }
+  }{
+      \newcommand*{\@footmicx@makefnmark}{\@makefnmark}
   }
-  \renewcommand*\@footnotemark{%
+  \newcommand*\@footmisxnotemark{%
     \leavevmode
     \ifhmode
       \edef\@x@sf{\the\spacefactor}%
       \FN@mf@check
       \nobreak
     \fi
-    \@makefnmark
+    \@footmicx@makefnmark
 %    \end{macrocode}
 %
 % if we're also doing option \texttt{perpage}, write its stuff to the
@@ -1875,6 +1885,15 @@
       \spacefactor\@x@sf\relax
     \fi
   }
+  \CheckCommand*\@footnotemark{%
+    \leavevmode
+    \ifhmode\edef\@x@sf{\the\spacefactor}\nobreak\fi
+    \@makefnmark
+    \ifhmode\spacefactor\@x@sf\fi
+    \relax
+  }
+  \let\@footnotemark\@footmisxnotemark
+
 %    \end{macrocode}
 %
 % If we're not doing multiple, just create an empty \cs{FN@mf@prepare}
