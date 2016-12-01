@@ -1,9 +1,3 @@
-This package is long-established and widely used.  It derives from
-several pieces of work done in pre-LaTeX 2e days by other authors;
-over the years, there is none of that basis that I have not developed
-and/or improved.
+This package is based on Robin Fairbairns footmisc package
 
-A .tds.zip file is available on CTAN.
-
-Robin Fairbairns
-rf10<snail-shape>cam.ac.uk
+It allow to personnalize footnote on LaTeX
