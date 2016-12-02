@@ -1,0 +1,24 @@
+\documentclass{article}
+
+\usepackage{ifthen}
+\ifthenelse{\equal{\jobname}{default}}{
+    \usepackage{footmisx}
+}{
+    \usepackage[\jobname]{footmisx}
+}
+
+\usepackage[showcrop,showframe]{geometry}
+\usepackage{blindtext}
+
+\begin{document}
+\blindtext
+Put a footnote\footnote{A footnote}.
+
+\Blindtext[3][4]
+\newpage
+\blindtext
+\footnote{A: \blindtext}.
+\blindtext
+\footnote{B: \blindtext}.
+
+\end{document}
