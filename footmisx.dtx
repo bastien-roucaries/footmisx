@@ -11,7 +11,11 @@
 %<*dtx>
 \ProvidesFile{footmisx.dtx}%
 %</dtx>
-%<package>\ProvidesPackage{footmisx}[2016/12/01 20161201 a miscellany of footnote facility]
+%<*package>
+\RequirePackage{expl3}
+\ProvidesExplPackage{footmisx}{2016/12/01}{20161201}{miscellany of footnote facility}
+\ExplSyntaxOff
+%</package>
 %    \end{macrocode}
 %
 % Code to enable LaTeX processing of the file without the intervention
@@ -19,7 +23,7 @@
 %    \begin{macrocode}
 %<*driver>
 \setcounter{errorcontextlines}{999}
-\documentclass{ltxdoc}
+\documentclass{l3doc}
 %    \end{macrocode}
 %
 % we limit the things that we will index
@@ -461,11 +465,6 @@
 %
 %    \begin{macrocode}
 %<*package>
-%    \end{macrocode}
-%
-% Now declare what environment we need:
-%    \begin{macrocode}
-\NeedsTeXFormat{LaTeX2e}[1994/12/01]
 %    \end{macrocode}
 %
 % We need a token register in case we have to patch \cs{@makecol}:
