@@ -2337,22 +2337,23 @@
 % \cs{footnotemark}, and which applies the semantics of
 % \cs{footnotemark} to the minipage footnote series.
 %    \begin{macrocode}
-\newcommand\mpfootnotemark{%
-  \@ifnextchar[%
-    \@xmpfootnotemark
-    {%
-      \stepcounter\@mpfn
-      \protected@xdef\@thefnmark{\thempfn}%
-      \@footnotemark
-    }%
-}
-\def\@xmpfootnotemark[#1]{%
-  \begingroup
-    \csname c@\@mpfn\endcsname #1\relax
-    \unrestored@protected@xdef\@thefnmark{\thempfn}%
-  \endgroup
+\ExplSyntaxOn
+\DeclareDocumentCommand\mpfootnotemark{o}
+{%
+  \IfValueTF {#1}%
+  {%
+    \group_begin:
+    \cs_set:cpn {c@\@mpfn} {#1}
+    \unrestored@protected@xdef\@thefnmark{\thempfn}
+    \group_end:
+  }%
+  {%
+    \stepcounter\@mpfn
+    \protected@xdef\@thefnmark{\thempfn}%
+  }%
   \@footnotemark
 }
+\ExplSyntaxOff
 %    \end{macrocode}
 % \end{macro}
 %
