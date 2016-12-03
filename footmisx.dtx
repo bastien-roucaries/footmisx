@@ -1,22 +1,57 @@
-%\iffalse meta-comment, etc.
-%% This is footmisx.dtx, and it's -*-LaTeX-*- text
-%
-% We use the same body for the \cs{ProvidesFile} as for the
-% \cs{ProvidesPackage} command.
-%
-%    \begin{macrocode}
-%<*!debugins>
-\NeedsTeXFormat{LaTeX2e}
-%</!debugins>
-%<*dtx>
-\ProvidesFile{footmisx.dtx}%
-%</dtx>
-%<*package>
-\RequirePackage{expl3}
+% \iffalse meta-comment
+%<*internal>
+\iffalse
+%</internal>
+%<*readme>
+This package is based on Robin Fairbairns footmisc package
+
+It allow to personnalize footnote on LaTeX
+%</readme>
+%<*internal>
+\fi
+\def\nameofplainTeX{plain}
+\ifx\fmtname\nameofplainTeX\else
+  \expandafter\begingroup
+\fi
+%</internal>
+%<*install>
+\input l3docstrip.tex
+\keepsilent
+\askforoverwritefalse
+\preamble
+---------------------------------------------------------------
+The footmisx package 
+---------------------------------------------------------------
+\endpreamble
+\postamble
+Copyright
+\endpostamble
+\usedir{tex/latex/siunitx}
+\generate{
+  \file{\jobname.sty}{\from{\jobname.dtx}{package}}
+}
+%</install>
+%<install>\endbatchfile
+%<*internal>
+\generate{
+  \file{\jobname.ins}{\from{\jobname.dtx}{install}}
+}
+\nopreamble\nopostamble
+\generate{
+  \file{README.md}{\from{\jobname.dtx}{readme}}
+}
+\ifx\fmtname\nameofplainTeX
+  \expandafter\endbatchfile
+\else
+  \expandafter\endgroup
+\fi
+%</internal>
+%<*driver|package>
+\RequirePackage{expl3}[2015/09/11]
 \RequirePackage{xparse}
 \ProvidesExplPackage{footmisx}{2016/12/01}{20161201}{miscellany of footnote facility}
 \ExplSyntaxOff
-%</package>
+%</driver|package>
 %    \end{macrocode}
 %
 % Code to enable LaTeX processing of the file without the intervention
@@ -465,12 +500,28 @@
 % Well~--- here we go: let's make the package file:
 %
 %    \begin{macrocode}
-%<*package>
+%<*driver|package>
 %    \end{macrocode}
 %
 % \subsection{Error messages}
 %
 % Here we define some error messages:
+%
+% \subsection{Check definition}
+%
+% We check definition of some overwriten function. Create a private macro
+% to compare meaning:
+% \begin{macrocode}
+\ExplSyntaxOn
+\group_begin:
+  \def\__footmisx_copy_makefnmark{\hbox{\@textsuperscript{\normalfont\@thefnmark}}}
+  \cs_if_eq:NNTF {\@makefnmark} {\__footmisx_copy_makefnmark} {\typeout{error}} {\typeout{error}\T}
+\group_end:
+\ExplSyntaxOff
+%<@@=>
+%</driver|package>
+%<*driver|package>
+% \end{macrocode}
 %
 % \subsection{Generalities}
 %
@@ -1998,7 +2049,7 @@
 % to it.
 %    \begin{macrocode}
 \let\FN@fnsymbol@lamport\@fnsymbol
-%</package>
+%</driver|package>
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
