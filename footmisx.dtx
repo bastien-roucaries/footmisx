@@ -2319,12 +2319,15 @@
 % in the |memoir| class, and we therefore \cs{providecommand} it
 % rather than defining it ``outright''.)
 %    \begin{macrocode}
-\providecommand*{\footref}[1]{%
-  \begingroup
-    \unrestored@protected@xdef\@thefnmark{\ref{#1}}%
-  \endgroup
+\ExplSyntaxOn
+\ProvideDocumentCommand\footref{m}
+{
+  \group_begin:
+     \unrestored@protected@xdef\@thefnmark{\ref{#1}}%
+  \group_end:
   \@footnotemark
 }
+\ExplSyntaxOff
 %    \end{macrocode}
 % \end{macro}
 %

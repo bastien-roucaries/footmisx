@@ -7,4 +7,4 @@ all:
 	makeindex -s $(PKG).glo -o $(PKG).glx $(PKG)
 	pdflatex $(PKG).dtx
 	pdflatex $(PKG).dtx
-	(set -e; cd tests;  find . -name '*.tex'  -exec pdflatex {} \;)
+	(set -e; cd tests;  find . -name '*.tex'  -exec pdflatex {} \;find . -name '*.tex'  -exec pdflatex {} \;)

@@ -28,8 +28,8 @@ Put a footnote\footnote{A footnote}.
 \blindtext
 \footnote{A: \blindtext}.
 \blindtext
-\footnote{B: \blindtext}.
-
+\footnote{B: \blindtext \label{foot:B}}.
+A ref to foot B on this page\footref{foot:B}.
 \newpage
 \blindtext
 \footnote{A: \blindtext}
