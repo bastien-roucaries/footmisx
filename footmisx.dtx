@@ -506,6 +506,19 @@ Copyright
 % \subsection{Error messages}
 %
 % Here we define some error messages:
+% \begin{macrocode}
+\ExplSyntaxOn
+\msg_new:nnn {footmisx} {not expected definition}
+   {The~macro~#1~is~not~defined~as~expected.\\
+    The~macro~#1~could~not~be~modified~by~footmisx.\\
+    Please~report~a~bug. \\
+    Get:\\
+    #2\\
+    Expect:\\
+    #3\\
+   }
+\ExplSyntaxOff
+% \end{macrocode}
 %
 % \subsection{Check definition}
 %
@@ -514,11 +527,18 @@ Copyright
 % \begin{macrocode}
 \ExplSyntaxOn
 \group_begin:
+  \cs_new:Nn \__footmisx_error_if_neq:NN {
+  \cs_if_eq:NNTF {#1} {#2} {}
+                 {\msg_fatal:nnxxx {footmisx} {not expected definition}
+                                 {\exp_not:N #1}
+                                 {\exp_not:N {\cs_meaning:N #1}}
+                                 {\exp_not:N {\cs_meaning:N #2}}
+                 }
+  }
   \def\__footmisx_copy_makefnmark{\hbox{\@textsuperscript{\normalfont\@thefnmark}}}
-  \cs_if_eq:NNTF {\@makefnmark} {\__footmisx_copy_makefnmark} {\typeout{error}} {\typeout{error}\T}
+  \__footmisx_error_if_neq:NN {\@makefnmark} {\__footmisx_copy_makefnmark}
 \group_end:
 \ExplSyntaxOff
-%<@@=>
 %</driver|package>
 %<*driver|package>
 % \end{macrocode}
