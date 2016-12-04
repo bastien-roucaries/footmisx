@@ -47,4 +47,8 @@ A minipage footnote mark\mpfootnotemark for 4
 \end{minipage}
 \end{figure}
 \blindtext
+
+\newpage
+\blindtext\footnotemark \footnotetext{A manual footnote}
+
 \end{document}

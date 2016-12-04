@@ -545,6 +545,12 @@ Copyright
 %
 % \subsection{Generalities}
 %
+% We save a private macro using csname in order to use lt3doc
+%    \begin{macrocode}
+\ExplSyntaxOn
+\cs_set_eq:cc {footmisx@par} {@ @ par}
+\ExplSyntaxOff
+%    \end{macrocode}
 % We need a token register in case we have to patch \cs{@makecol}:
 %    \begin{macrocode}
 \newtoks\FN@temptoken
@@ -561,14 +567,14 @@ Copyright
 % \end{macro}
 %
 % \begin{macro}{\l@advance@macro}
-% \begin{macro}{@@dvance@macro}
+% \begin{macro}{@footmisx@dvance@macro}
 % \begin{macro}{\@advance@macro}
-% We make the following (\cs{@@dvance@macro}) generalisable as follows
+% We make the following (\cs{@footmisx@dvance@macro}) generalisable as follows
 % (the global form isn't used in this package \dots\ yet):
 %
 %    \begin{macrocode}
-\def\l@advance@macro{\@@dvance@macro\edef}
-\def\@@dvance@macro#1#2#3{\expandafter\@tempcnta#2\relax
+\def\l@advance@macro{\@footmisx@dvance@macro\edef}
+\def\@footmisx@dvance@macro#1#2#3{\expandafter\@tempcnta#2\relax
   \advance\@tempcnta#3\relax
   #1#2{\the\@tempcnta}%
 }
@@ -1305,12 +1311,14 @@ Copyright
 %    \end{macrocode}
 % Now define \cs{@footnotetext} to be \cs{@footmisxnotetext}
 %    \begin{macrocode}
+\ExplSyntaxOn
 \@ifpackageloaded{hyperref}
 {
-  \let\H@@footnotetext\@footmisxnotetext
+  \cs_set_eq:cc {H @ @ footnotetext} {@footmisxnotetext}
 }{
   \renewcommand{\@footnotetext}[1]{\@footmisxnotetext{#1}}
 }
+  \ExplSyntaxOff
 %    \end{macrocode}
 %
 % \subsection{Support code for paragraph footnotes}
@@ -1550,7 +1558,7 @@ Copyright
 % create the correct footnote numbers on the second and subsequent
 % passes.
 %    \begin{macrocode}
-  \newcounter{@fnserial}
+  \newcounter{footmisx@fnserial}
 %    \end{macrocode}
 %
 % \begin{macro}{\FN@pp@cpage}
@@ -1572,7 +1580,7 @@ Copyright
   \newcommand{\footnotehint}{%
     \setcounter{footnote}{0}%
     \protected@writeaux\relax{\protect\FN@pp@footnotehinttrue}%
-    \@tempcnta\c@@fnserial
+    \@tempcnta\c@footmisx@fnserial
     \advance\@tempcnta\@ne
     \global\c@pp@next@reset\@tempcnta
   }
@@ -1729,15 +1737,15 @@ Copyright
 % \end{macro}
 %
 % \begin{macro}{\clearpage}
-% \begin{macro}{\FN@pp@@clearpage}
+% \begin{macro}{\FN@pp@footmisx@clearpage}
 % Now, how do we cope with \cs{include}d documents?  We can't insert
 % anything (the |includex| package offers \cs{AtBeginIncludedDocument}
 % but there's no corresponding command for files included by the
 % kernel \cs{include}.  So we insert a footnote hint at every
 % \cs{clearpage}
 %    \begin{macrocode}
-\let\FN@pp@@clearpage\clearpage
-\renewcommand{\clearpage}{\footnotehint\FN@pp@@clearpage}
+\let\FN@pp@footmisx@clearpage\clearpage
+\renewcommand{\clearpage}{\footnotehint\FN@pp@footmisx@clearpage}
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
@@ -1749,7 +1757,7 @@ Copyright
 %    \begin{macrocode}
 \def\FN@pp@footnote{%
   \if@minipage\else
-    \global\advance\c@@fnserial\@ne
+    \global\advance\c@footmisx@fnserial\@ne
     \if@filesw
 %    \end{macrocode}
 %
@@ -1759,12 +1767,12 @@ Copyright
       \xdef\FN@pp@writetemp{%
         \noexpand\protected@writeaux\relax{%
           \string\FN@pp@footnote@aux
-            {\the\c@@fnserial}{\noexpand\thepage}%
+            {\the\c@footmisx@fnserial}{\noexpand\thepage}%
         }%
       }%
       \FN@pp@towritetrue
     \fi
-    \ifnum\c@pp@next@reset>\c@@fnserial
+    \ifnum\c@pp@next@reset>\c@footmisx@fnserial
     \else
       \global\expandafter\csname c@\@mpfn\endcsname\@ne
       \protected@xdef\@thefnmark{\thempfn}%
@@ -1836,7 +1844,7 @@ Copyright
 %
 % stop the \cs{parshape} being overwritten:
 %    \begin{macrocode}
-      \@setpar{{\@@par}}%
+      \@setpar{{\footmisx@par}}%
 %    \end{macrocode}
 %
 % and finally put the marker in its chosen place:
@@ -1978,7 +1986,7 @@ Copyright
 % \subsection{The code that executes the \texttt{stable} option}
 %
 % \begin{macro}{\ifFN@stablefootnote}
-% \begin{macro}{\FN@sf@@footnote}
+% \begin{macro}{\FN@sf@footmisx@footnote}
 % The basic idea is to use the `original' code of \cs{footnote} (which
 % this package may have hacked around something chronic) only if we're
 % in typesetting mode (as determined by the state of the \cs{protect}
@@ -1986,9 +1994,9 @@ Copyright
 % `gobble'.
 %    \begin{macrocode}
 \ifFN@stablefootnote
-\let\FN@sf@@footnote\footnote
+\let\FN@sf@footmisx@footnote\footnote
 \def\footnote{\ifx\protect\@typeset@protect
-    \expandafter\FN@sf@@footnote
+    \expandafter\FN@sf@footmisx@footnote
   \else
     \expandafter\FN@sf@gobble@opt
   \fi
@@ -2014,14 +2022,14 @@ Copyright
 % \end{macro}
 % \end{macro}
 %
-% \begin{macro}{\FN@sf@@footnotemark}
+% \begin{macro}{\FN@sf@footmisx@footnotemark}
 % \begin{macro}{\FN@sf@gobble@optonly}
 % \begin{macro}{\FN@sf@gobble@bracket}
 % Now the same for \cs{footnotemark}
 %    \begin{macrocode}
-\let\FN@sf@@footnotemark\footnotemark
+\let\FN@sf@footmisx@footnotemark\footnotemark
 \def\footnotemark{\ifx\protect\@typeset@protect
-    \expandafter\FN@sf@@footnotemark
+    \expandafter\FN@sf@footmisx@footnotemark
   \else
     \expandafter\FN@sf@gobble@optonly
   \fi
