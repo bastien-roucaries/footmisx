@@ -2457,6 +2457,21 @@ Copyright
 %
 % \section{Other miscellaneous commands}
 %
+% \subsection{Footnote mark style}
+%
+% \begin{macro}{\footnotemakestyle}
+% Syntax \cs{footnotemarkstyle}\marg{text}
+%
+% Typographically set the text in the same style than a raw
+% footnotemark (it is in fact a generic version of \tn{\@makefnmark})
+%    \begin{macrocode}
+\ExplSyntaxOn
+\NewDocumentCommand{\footnotemarkstyle}{m}
+    {\hbox{\@textsuperscript{\normalfont#1}}}
+\ExplSyntaxOff
+%    \end{macrocode}
+% \end{macro}
+%
 % \subsection{Footnote references}
 %
 % \begin{macro}{\footref}
