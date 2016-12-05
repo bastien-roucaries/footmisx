@@ -20,13 +20,12 @@ It allow to personnalize footnote on LaTeX
 \askforoverwritefalse
 \preamble
 ---------------------------------------------------------------
-The footmisx package 
+The footmisx package
 ---------------------------------------------------------------
 \endpreamble
 \postamble
 Copyright
 \endpostamble
-\usedir{tex/latex/siunitx}
 \generate{
   \file{\jobname.sty}{\from{\jobname.dtx}{package}}
 }
@@ -103,7 +102,7 @@ Copyright
 %          version number \fileversion, last revised \filedate}}
 % \author{Bastien Roucari\`es formerly
 %     Robin Fairbairns\thanks{University of Cambridge Computer
-%     Laboratory, William Gates Building, J.\,J. Thompson Avenue, 
+%     Laboratory, William Gates Building, J.\,J. Thompson Avenue,
 %     Cambridge, CB2 0FD, UK
 %     (\texttt{rf10<snail-shape>cam.ac.uk})}}
 % \maketitle
@@ -269,7 +268,7 @@ Copyright
 % symbols isn't universally loved.
 %
 % You may define a set of symbols with the \cs{DefineFNsymbols}
-% command.  \LaTeX{}'s default set would be defined by the command: 
+% command.  \LaTeX{}'s default set would be defined by the command:
 % \begin{center}
 %   \verb|\DefineFNsymbols*{lamport}|%
 %   \unskip\verb|{*\dagger\ddagger\S\P|\texttt{\char`\\\char`\|\%}\\
@@ -503,10 +502,15 @@ Copyright
 %<*driver|package>
 %    \end{macrocode}
 %
+% Enable lt3docstrip stripping
+%    \begin{macrocode}
+%<@@=footmisx>
+%    \end{macrocode}
+%
 % \subsection{Error messages}
 %
 % Here we define some error messages:
-% \begin{macrocode}
+%    \begin{macrocode}
 \ExplSyntaxOn
 \msg_new:nnn {footmisx} {not expected definition}
    {The~macro~#1~is~not~defined~as~expected.\\
@@ -518,37 +522,137 @@ Copyright
     #3\\
    }
 \ExplSyntaxOff
-% \end{macrocode}
+%    \end{macrocode}
 %
 % \subsection{Check definition}
 %
-% We check definition of some overwriten function. Create a private macro
-% to compare meaning:
-% \begin{macrocode}
+% We check definition of some overwriten function.
+% \begin{function}{\@@_error_if_neq:NNc}
+%   \begin{syntax}
+%     \cs{@@_error_if_neq:NNc} \Arg{sequence_1} \Arg{sequence_2} \marg{csname}
+%   \end{syntax}
+%   Compare \Arg{sequence_1} and \Arg{sequence_2}. Call \marg{csname} if not
+%   equal in \cs{cs_if_eq:NNTF} sense.
+%
+%   \marg{csname} should be a \cs{foo:nnxxx} function like \cs[module=l3basics]{msg_critical:nnxxx}
+%    \begin{macrocode}
+\ExplSyntaxOn
+\cs_new:Npn \@@_msg_if_neq:NNc #1#2#3 {
+  \cs_if_eq:NNTF {#1} {#2} {}
+                 {\use:c{#3}
+                   {footmisx}
+                   {not expected definition}
+                   {\exp_not:N #1}
+                   {\exp_not:N {\cs_meaning:N #1}}
+                   {\exp_not:N {\cs_meaning:N #2}}
+                 }
+}
+\ExplSyntaxOff
+%    \end{macrocode}
+% \end{function}
+% \begin{function}{\@@_fatal_if_neq:NN}
+%   \begin{syntax}
+%     \cs{@@_fatal_if_neq:NN} \Arg{sequence_1} \Arg{sequence_2}
+%   \end{syntax}
+%   Compare \Arg{sequence_1} and \Arg{sequence_2}. Call \cs[module=l3basics]{msg_fatal:nnxxx} if not
+%   equal in \cs{cs_if_eq:NNTF} sense.
+%    \begin{macrocode}
+\ExplSyntaxOn
+\cs_new:Nn \@@_fatal_if_neq:NN {
+  \@@_msg_if_neq:NNc {#1} {#2} {msg_fatal:nnxxx}
+}
+\ExplSyntaxOff
+%    \end{macrocode}
+% \end{function}
+% \begin{function}{\@@_critical_if_neq:NN}
+%   \begin{syntax}
+%     \cs{@@_critical_if_neq:NN} \Arg{sequence_1} \Arg{sequence_2}
+%   \end{syntax}
+%   Compare \Arg{sequence_1} and \Arg{sequence_2}. Call \cs[module=l3basics]{msg_critical:nnxxx} if not
+%   equal in \cs{cs_if_eq:NNTF} sense.
+%    \begin{macrocode}
+\ExplSyntaxOn
+\cs_new:Nn \@@_critical_if_neq:NN {
+  \@@_msg_if_neq:NNc {#1} {#2} {msg_critical:nnxxx}
+}
+\ExplSyntaxOff
+%    \end{macrocode}
+% \end{function}
+% \begin{function}{\@@_error_if_neq:NN}
+%   \begin{syntax}
+%     \cs{@@_error_if_neq:NN} \Arg{sequence_1} \Arg{sequence_2}
+%   \end{syntax}
+%   Compare \Arg{sequence_1} and \Arg{sequence_2}. Call \cs[module=l3basics]{msg_error:nnxxx} if not
+%   equal in \cs{cs_if_eq:NNTF} sense.
+%    \begin{macrocode}
+\ExplSyntaxOn
+\cs_new:Nn \@@_error_if_neq:NN {
+  \@@_msg_if_neq:NNc {#1} {#2} {msg_error:nnxxx}
+}
+\ExplSyntaxOff
+%    \end{macrocode}
+% \end{function}
+% \begin{function}{\@@_warning_if_neq:NN}
+%   \begin{syntax}
+%     \cs{@@_warning_if_neq:NN} \Arg{sequence_1} \Arg{sequence_2}
+%   \end{syntax}
+%   Compare \Arg{sequence_1} and \Arg{sequence_2}. Call \cs[module=l3basics]{msg_warning:nnxxx} if not
+%   equal in \cs{cs_if_eq:NNTF} sense.
+%    \begin{macrocode}
+\ExplSyntaxOn
+\cs_new:Nn \@@_warning_if_neq:NN {
+  \@@_msg_if_neq:NNc {#1} {#2} {msg_warning:nnxxx}
+}
+\ExplSyntaxOff
+%    \end{macrocode}
+% \end{function}
+% \begin{function}{\@@_note_if_neq:NN}
+%   \begin{syntax}
+%     \cs{@@_note_if_neq:NN} \Arg{sequence_1} \Arg{sequence_2}
+%   \end{syntax}
+%   Compare \Arg{sequence_1} and \Arg{sequence_2}. Call \cs[module=l3basics]{msg_note:nnxxx} if not
+%   equal in \cs{cs_if_eq:NNTF} sense.
+%    \begin{macrocode}
+\ExplSyntaxOn
+\cs_new:Nn \@@_note_if_neq:NN {
+  \@@_msg_if_neq:NNc {#1} {#2} {msg_note:nnxxx}
+}
+\ExplSyntaxOff
+%    \end{macrocode}
+% \end{function}
+% \begin{function}{\@@_log_if_neq:NN}
+%   \begin{syntax}
+%     \cs{@@_log_if_neq:NN} \Arg{sequence_1} \Arg{sequence_2}
+%   \end{syntax}
+%   Compare \Arg{sequence_1} and \Arg{sequence_2}. Call \cs[module=l3basics]{msg_log:nnxxx} if not
+%   equal in \cs{cs_if_eq:NNTF} sense.
+%    \begin{macrocode}
+\ExplSyntaxOn
+\cs_new:Nn \@@_log_if_neq:NN {
+  \@@_msg_if_neq:NNc {#1} {#2} {msg_log:nnxxx}
+}
+\ExplSyntaxOff
+%    \end{macrocode}
+% \end{function}
+%
+% Now we check if \cs{@makefnmark} has been modified. Do it between group in
+% order to not pollute namespace.
+%
+%   \begin{macrocode}
 \ExplSyntaxOn
 \group_begin:
-  \cs_new:Nn \__footmisx_error_if_neq:NN {
-  \cs_if_eq:NNTF {#1} {#2} {}
-                 {\msg_fatal:nnxxx {footmisx} {not expected definition}
-                                 {\exp_not:N #1}
-                                 {\exp_not:N {\cs_meaning:N #1}}
-                                 {\exp_not:N {\cs_meaning:N #2}}
-                 }
-  }
-  \def\__footmisx_copy_makefnmark{\hbox{\@textsuperscript{\normalfont\@thefnmark}}}
-  \__footmisx_error_if_neq:NN {\@makefnmark} {\__footmisx_copy_makefnmark}
+  \def\@@_copy_makefnmark{\hbox{\@textsuperscript{\normalfont\@thefnmark}}}
+  \@@_warning_if_neq:NN {\@makefnmark} {\@@_copy_makefnmark}
 \group_end:
 \ExplSyntaxOff
-%</driver|package>
-%<*driver|package>
-% \end{macrocode}
+%    \end{macrocode}
 %
 % \subsection{Generalities}
 %
 % We save a private macro using csname in order to use lt3doc
 %    \begin{macrocode}
 \ExplSyntaxOn
-\cs_set_eq:cc {footmisx@par} {@ @ par}
+\cs_set_eq:cc {@@_par} {@ @ par}
 \ExplSyntaxOff
 %    \end{macrocode}
 % We need a token register in case we have to patch \cs{@makecol}:
@@ -840,7 +944,7 @@ Copyright
 %
 % In a minipage
 %    \begin{macrocode}
-      \mpfootnoterule 
+      \mpfootnoterule
     \else
       \ifnum\split@prev=\z@
 %    \end{macrocode}
@@ -851,10 +955,10 @@ Copyright
       \else
 %    \end{macrocode}
 %
-% Second part of a split footnote 
+% Second part of a split footnote
 %    \begin{macrocode}
         \splitfootnoterule
-      \fi 
+      \fi
 %    \end{macrocode}
 %
 % Remember a split for next page
@@ -923,7 +1027,7 @@ Copyright
         \setbox\@outputbox \box\@cclv
       \else
         \setbox\@outputbox \vbox{%
-          \boxmaxdepth \@maxdepth                   
+          \boxmaxdepth \@maxdepth
           \unvbox\@cclv
           \vskip \skip\footins
           \color@begingroup
@@ -985,7 +1089,7 @@ Copyright
     \@ifl@t@r\fmtversion{1999/12/01}{%
       \CheckCommand*\@makecol{\ifvoid \footins
           \setbox\@outputbox \box\@cclv
-        \else                           
+        \else
           \setbox\@outputbox \vbox{%
             \boxmaxdepth\@maxdepth
             \@tempdima\dp\@cclv
@@ -1137,7 +1241,7 @@ Copyright
 % Finally, create the new definition from the resulting object with
 % the remainder of the original \cs{@makecol} tagged on at the end.
 %    \begin{macrocode}
-  \toks@\expandafter{\the\toks@  
+  \toks@\expandafter{\the\toks@
     \ifvbox\@kludgeins
       \@makespecialcolbox
     \else
@@ -1207,7 +1311,7 @@ Copyright
       \interlinepenalty\interfootnotelinepenalty
       \splittopskip\footnotesep
       \splitmaxdepth \dp\strutbox
-      \floatingpenalty\@MM 
+      \floatingpenalty\@MM
       \hsize\columnwidth
       \@parboxrestore
       \protected@edef\@currentlabel{\csname p@footnote\endcsname\@thefnmark}%
@@ -1291,7 +1395,7 @@ Copyright
         \interlinepenalty\interfootnotelinepenalty
         \splittopskip\footnotesep
         \splitmaxdepth \dp\strutbox
-        \floatingpenalty\@MM 
+        \floatingpenalty\@MM
         \hsize\columnwidth
         \@parboxrestore
         \protected@edef\@currentlabel{%
@@ -1667,7 +1771,7 @@ Copyright
   }
 %    \end{macrocode}
 %
-% At end document, establish a new \cs{FN@pp@footnote@aux} which 
+% At end document, establish a new \cs{FN@pp@footnote@aux} which
 % checks whether numbers have changed during the scan of the |.aux|
 % files for changed labels and the like
 %    \begin{macrocode}
@@ -1844,7 +1948,7 @@ Copyright
 %
 % stop the \cs{parshape} being overwritten:
 %    \begin{macrocode}
-      \@setpar{{\footmisx@par}}%
+      \@setpar{{\@@par}}%
 %    \end{macrocode}
 %
 % and finally put the marker in its chosen place:
@@ -2231,7 +2335,7 @@ Copyright
 \@ifundefined{TextOrMath}{%
   \@ifundefined{eTeXversion}{%
     \PackageError{footmisx}{Can't define commands for footnote symbol}%
-                           {Use e-LaTeX, or load package fixltx2e before 
+                           {Use e-LaTeX, or load package fixltx2e before
                              footmisx}%
   }{%
     \protected\expandafter\def\csname TextOrMath\space\endcsname{%
@@ -2240,7 +2344,7 @@ Copyright
     }
     \edef\TextOrMath#1#2{%
       \expandafter\noexpand\csname TextOrMath\space\endcsname
-	{#1}{#2}%
+        {#1}{#2}%
     }%
   }%
 }{}
@@ -2421,18 +2525,18 @@ Copyright
 %    \begin{macrocode}
 \ExplSyntaxOn
 \DeclareDocumentCommand\mpfootnotemark{o}
-{%
-  \IfValueTF {#1}%
-  {%
+{
+  \IfValueTF {#1}
+  {
     \group_begin:
     \cs_set:cpn {c@\@mpfn} {#1}
     \unrestored@protected@xdef\@thefnmark{\thempfn}
     \group_end:
-  }%
-  {%
+  }
+  {
     \stepcounter\@mpfn
-    \protected@xdef\@thefnmark{\thempfn}%
-  }%
+    \protected@xdef\@thefnmark{\thempfn}
+  }
   \@footnotemark
 }
 \ExplSyntaxOff
