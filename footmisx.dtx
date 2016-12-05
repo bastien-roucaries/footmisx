@@ -635,7 +635,7 @@ Copyright
 %    \end{macrocode}
 % \end{function}
 %
-% Now we check if \cs{@makefnmark} has been modified. Do it between group in
+% Now we check if \tn{@makefnmark} has been modified. Do it between group in
 % order to not pollute namespace.
 %
 %   \begin{macrocode}
@@ -691,18 +691,6 @@ Copyright
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
-% \end{macro}
-%
-% \begin{macro}{\ifFN@etex}
-% Check whether we're using etex
-%    \begin{macrocode}
-\newif\ifFN@etex
-\ifx\dimexpr\undefined
-  \FN@etexfalse
-\else
-  \FN@etextrue
-\fi
-%    \end{macrocode}
 % \end{macro}
 % \begin{macro}{\footnotemargin}
 % Finally, we define the length used by the \texttt{marginal} option,
@@ -1342,12 +1330,8 @@ Copyright
           }% end of \@makefntext parameter
         }% end of \hbox
         \dp\FN@tempboxa=0pt
-        \ifFN@etex
-          \ht\FN@tempboxa=\dimexpr\wd\FN@tempboxa *
+        \ht\FN@tempboxa=\dimexpr\wd\FN@tempboxa *
                           \footnotebaselineskip / \columnwidth\relax
-        \else
-          \ht\FN@tempboxa=\fudgefactor\wd\FN@tempboxa
-        \fi
         \box\FN@tempboxa
       \color@endgroup
     }%
@@ -1489,20 +1473,6 @@ Copyright
     \global
       \footnotebaselineskip=\normalbaselineskip
   }
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}{\fudgefactor}
-% Now we derive a fudge factor from the baselineskip we've just
-% established (we use \cs{dimexpr} if we're in etex, so there's no need
-% for the fudge factor in that case).
-%    \begin{macrocode}
-  \ifFN@etex
-  \else
-    \@tempdima=\footnotebaselineskip \multiply\@tempdima by 1024
-    \divide \@tempdima by \columnwidth \multiply\@tempdima by 64
-    \xdef\fudgefactor{\strip@pt\@tempdima }%
-  \fi
 %    \end{macrocode}
 % \end{macro}
 %
