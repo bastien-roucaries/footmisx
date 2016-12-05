@@ -32,7 +32,7 @@ Put a footnote\footnote{A footnote}.
 A ref to foot B on this page\footref{foot:B}.
 \newpage
 \blindtext
-\footnote{A: \blindtext}
+\footnote{A: \blindtext}%
 \footnote{B: \blindtext}
 
 \newpage
