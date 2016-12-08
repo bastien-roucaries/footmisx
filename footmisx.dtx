@@ -1513,7 +1513,7 @@ Copyright
 %
 %    \begin{macrocode}
   \long\def\@makefntext#1{\leavevmode
-    \footnotemarkstyle{\@thefnmark}\nobreak
+    \textfootmark{\@thefnmark}\nobreak
     \hskip.5em\relax#1%
   }
 %    \end{macrocode}
@@ -1921,9 +1921,9 @@ Copyright
 %    \begin{macrocode}
       \setbox\@tempboxa\hbox{%
         \ifdim\footnotemargin>0pt
-          \hb@xt@\footnotemargin{\footnotemarkstyle{\@thefnmark}\hss}%
+          \hb@xt@\footnotemargin{\textfootmark{\@thefnmark}\hss}%
         \else
-          \footnotemarkstyle{\@thefnmark}
+          \textfootmark{\@thefnmark}
         \fi
       }%
 %    \end{macrocode}
@@ -1959,12 +1959,12 @@ Copyright
       \parindent1em
       \noindent
       \ifdim\footnotemargin>\z@
-        \hb@xt@ \footnotemargin{\hss\footnotemarkstyle{\@thefnmark}}%
+        \hb@xt@ \footnotemargin{\hss\textfootmark{\@thefnmark}}%
       \else
         \ifdim\footnotemargin=\z@
           \llap{\footnotemarkstyle{\@thefnmark}}%
         \else
-          \llap{\hb@xt@ -\footnotemargin{\footnotemarkstyle{\@thefnmark}\hss}}%
+          \llap{\hb@xt@ -\footnotemargin{\textfootmark{\@thefnmark}\hss}}%
         \fi
       \fi
     \fi
@@ -2015,11 +2015,11 @@ Copyright
       \global\let\Hy@footnote@currentHref\@currentHref%
       \global\let\@currentHref\Hy@saved@currentHref%
       \hyper@linkstart{link}{\Hy@footnote@currentHref}%
-      \footnotemarkstyle{\@thefnmark}%
+      \textfootmark{\@thefnmark}%
       \hyper@linkend%
     }
   }{
-      \newcommand*{\@footmicx@makefnmark}{\@makefnmark}
+      \newcommand*{\@footmicx@makefnmark}{\textfootmark{\@thefnmark}}
   }
 \newcommand*\@footmisxnotemark{%
     \leavevmode
@@ -2588,7 +2588,7 @@ Copyright
     \relax
   }
 \DeclareDocumentCommand{\@@_@footnotemark}{sO{\thefootnote}}{
-  \IfValueTF{#1}{\@@_internal_footnotemark:n{\@@_noref_@makeHfnmark:n{#2}}}{\@@_makeHfnmark:n{#2}}
+  \IfBooleanTF{#1}{\@@_internal_footnotemark:n{\@@_noref_@makeHfnmark:n{#2}}}{\@@_makeHfnmark:n{#2}}
 }
 \ExplSyntaxOff
 %    \end{macrocode}
@@ -2612,14 +2612,14 @@ Copyright
 %
 % \subsection{Footnote mark style}
 %
-% \begin{macro}{\footnotemarkstyle}
-% Syntax \cs{footnotemarkstyle}\marg{text}
+% \begin{macro}{\textfootmark}
+% Syntax \cs{textfootmark}\marg{text}
 %
 % Typographically set the text in the same style than a raw
 % footnotemark (it is in fact a generic version of \tn{@makefnmark})
 %    \begin{macrocode}
 \ExplSyntaxOn
-\NewDocumentCommand{\footnotemarkstyle}{m}
+\NewDocumentCommand{\textfootmark}{m}
     {\hbox{\@textsuperscript{\normalfont#1}}}
 \ExplSyntaxOff
 %    \end{macrocode}
@@ -2631,7 +2631,7 @@ Copyright
 %    \begin{macrocode}
 \ExplSyntaxOn
 \RenewDocumentCommand{\@makefnmark}{O{\@thefnmark}}
-    {\footnotemarkstyle{#1}}
+    {\textfootmark{#1}}
 \ExplSyntaxOff
 %    \end{macrocode}
 % \end{macro}
@@ -2653,9 +2653,13 @@ Copyright
 % rather than defining it ``outright''.)
 %    \begin{macrocode}
 \ExplSyntaxOn
-\ProvideDocumentCommand\footref{m}
+\ProvideDocumentCommand\footref{s m}
 {
-  \footnotemarkstyle{\ref{#1}}
+  \textfootmark{
+    \IfBooleanTF{#1}
+      {\@@_noHref:n{#2}}
+      {\ref{#2}}
+  }
 }
 \ExplSyntaxOff
 %    \end{macrocode}

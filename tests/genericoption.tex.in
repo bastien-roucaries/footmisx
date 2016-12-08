@@ -36,7 +36,7 @@ A ref to foot B on this page\footref{foot:B}.
 \footnote{B: \blindtext}
 
 \newpage
-A ref to previous page footnote\footref{foot:B}
+A ref to previous page footnote\footref{foot:B}. without hyper \footref*{foot:B}.
 \blindtext
 \begin{figure}
 \begin{minipage}{0.7\textwidth}
