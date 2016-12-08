@@ -1616,15 +1616,7 @@ Copyright
     \@xfootnote
     {%
       \stepcounter\@mpfn \protected@xdef\@thefnmark{\thempfn}%
-      \FN@pp@footnote\@footnotemark
-%    \end{macrocode}
-%
-% In case that we're \emph{not} running \texttt{multiple} option,
-% \cs{@footnotemark} \emph{won't} have written details to the |.aux|
-% file, so do it now:
-%    \begin{macrocode}
-      \FN@pp@writehook
-      \@footnotetext
+      \FN@pp@footnote\@footnotemark \@footnotetext
     }%
   }
 %    \end{macrocode}
@@ -1647,14 +1639,6 @@ Copyright
       \stepcounter{footnote}%
       \protected@xdef\@thefnmark{\thefootnote}%
       \FN@pp@footnote\@footnotemark
-%    \end{macrocode}
-%
-% again, tidy up if we're not doing \texttt{multiple} option
-%    \begin{macrocode}
-      \ifFN@pp@towrite
-        \FN@pp@writetemp
-        \FN@pp@towritefalse
-      \fi
     }%
   }
 %    \end{macrocode}
@@ -2028,10 +2012,7 @@ Copyright
 % precautions to ensure that the kerns are the last things added to
 % the horizontal list by the commands.
 %    \begin{macrocode}
-\ifFN@multiplefootnote
-  \providecommand*{\multiplefootnotemarker}{3sp}
-  \providecommand*{\multfootsep}{,}
-  \@ifpackageloaded{hyperref}{
+\@ifpackageloaded{hyperref}{
     \newcommand*{\@footmicx@makefnmark}{%
       \stepcounter{Hfootnote}%
       \global\let\Hy@saved@currentHref\@currentHref%
@@ -2045,7 +2026,7 @@ Copyright
   }{
       \newcommand*{\@footmicx@makefnmark}{\@makefnmark}
   }
-  \newcommand*\@footmisxnotemark{%
+\newcommand*\@footmisxnotemark{%
     \leavevmode
     \ifhmode
       \edef\@x@sf{\the\spacefactor}%
@@ -2064,6 +2045,10 @@ Copyright
     \ifhmode\spacefactor\@x@sf\fi
     \relax
   }
+\let\@footnotemark\@footmisxnotemark
+\ifFN@multiplefootnote
+  \providecommand*{\multiplefootnotemarker}{3sp}
+  \providecommand*{\multfootsep}{,}
   \def\FN@mf@prepare{%
     \kern-\multiplefootnotemarker
     \kern\multiplefootnotemarker\relax
@@ -2076,8 +2061,6 @@ Copyright
       \spacefactor\@x@sf\relax
     \fi
   }
-  \let\@footnotemark\@footmisxnotemark
-
 %    \end{macrocode}
 %
 % If we're not doing multiple, just create an empty \cs{FN@mf@prepare}
