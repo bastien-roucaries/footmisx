@@ -2472,6 +2472,47 @@ Copyright
 %
 % \section{Core function}
 %
+% \subsection{Tools}
+%
+% Here we define some tools functions. First we define a pointer
+% to \tn{ref*} if \texttt{hyperref} is loaded or \tn{ref} if not
+% loaded.
+% \begin{function}{\@@_noHref:n}
+% \begin{syntax}
+%   \cs{\@@_noHref:n} \Arg{label}
+% \end{syntax}
+%    \begin{macrocode}
+\ExplSyntaxOn
+\cs_new_nopar:Nn \@@_noHref:n {\ref{#1}}
+\ExplSyntaxOff
+%    \end{macrocode}
+% \end{function}
+% Now we define a function to set this pointer:
+% \begin{function}{\@@_define_noHref:}
+% \begin{syntax}
+%     \cs{\@@_define_noHref:} 
+%   \end{syntax}
+%    \begin{macrocode}
+\ExplSyntaxOn
+\cs_new_nopar:Npn \@@_define_noHref: {} {
+  \@ifpackageloaded{hyperref}{
+    \cs_gset:Nn \@@_noHref:n {\ref*{#1}}
+  }
+  {
+    \cs_gset:Nn \@@_noHref:n {\ref{#1}}
+  }
+}
+\ExplSyntaxOff
+%    \end{macrocode}
+% We run this code now (update) and eventually at end of hyperref file
+%    \begin{macrocode}
+\ExplSyntaxOn
+\@@_define_noHref:
+\AtEndOfPackageFile{hyperref}{\@@_define_noHref:}
+\ExplSyntaxOff
+%    \end{macrocode}
+% \end{function}
+%
 % \subsection{\cs{@footnotemark}}
 %
 % Update \tn{@footnotemark} in order to accept an optional argument, 
@@ -2614,10 +2655,7 @@ Copyright
 \ExplSyntaxOn
 \ProvideDocumentCommand\footref{m}
 {
-  \group_begin:
-     \unrestored@protected@xdef\@thefnmark{\ref{#1}}%
-  \group_end:
-  \@footnotemark
+  \footnotemarkstyle{\ref{#1}}
 }
 \ExplSyntaxOff
 %    \end{macrocode}
