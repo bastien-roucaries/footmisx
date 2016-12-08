@@ -872,21 +872,6 @@ Copyright
 %    \end{macrocode}
 % \end{macro}
 %
-% \subsection{The \texttt{PPdebug} option}
-%
-% \begin{macro}{\ifFN@pp@debug}
-% Sets a flag; the messages are generated in various places throughout
-% the code.  The option is not available in the package as
-% distributed: modify the |.ins| file to generate a version of the
-% package that includes the option, if you feel you need it.
-%    \begin{macrocode}
-%<*PPdebug>
-\newif\ifFN@pp@debug    \FN@pp@debugfalse
-\DeclareOption{PPdebug}{\FN@pp@debugtrue}
-%</PPdebug>
-%    \end{macrocode}
-% \end{macro}
-%
 % \subsection{The \texttt{bottom} option}
 %
 % \begin{macro}{\ifFN@bottom}
@@ -1689,27 +1674,6 @@ Copyright
 % precautions to ensure that the kerns are the last things added to
 % the horizontal list by the commands.
 %    \begin{macrocode}
-\ExplSyntaxOn
-\newcommand*\@footmisxnotemark{%
-    \leavevmode
-    \ifhmode
-      \edef\@x@sf{\the\spacefactor}%
-      \FN@mf@check
-      \nobreak
-    \fi
-    \@@_makeHfnmark:n {\@thefnmark}
-%    \end{macrocode}
-%
-% if we're also doing option \texttt{perpage}, write its stuff to the
-% |.aux| file for it, so the \emph{wotsit} node doesn't interfere with
-% our \cs{kern} detection.
-%    \begin{macrocode}
-    \FN@mf@prepare
-    \ifhmode\spacefactor\@x@sf\fi
-    \relax
-  }
-\ExplSyntaxOff
-\let\@footnotemark\@footmisxnotemark
 \ifFN@multiplefootnote
   \providecommand*{\multiplefootnotemarker}{3sp}
   \providecommand*{\multfootsep}{,}
@@ -2163,7 +2127,7 @@ Copyright
 % Now we define a function to set this pointer:
 % \begin{function}{\@@_define_noHref:}
 % \begin{syntax}
-%     \cs{\@@_define_noHref:} 
+%     \cs{\@@_define_noHref:}
 %   \end{syntax}
 %    \begin{macrocode}
 \ExplSyntaxOn
@@ -2186,9 +2150,9 @@ Copyright
 %    \end{macrocode}
 % \end{function}
 %
-% \subsection{\cs{@footnotemark}}
+% \subsection{\cs{@makefnmark}}
 %
-% Update \tn{@footnotemark} in order to accept an optional argument, 
+% Update \tn{@makefnmark} in order to accept an optional argument,
 % the counter to update and a stared version in order to not use hyperlink.
 %
 % First we define the hyperref hook
@@ -2244,7 +2208,7 @@ Copyright
     \fi
   }
   {
-    \cs_gset_eq:NN \@@_makeHfnmark:n \@@_noref_@makeHfnmark:n 
+    \cs_gset_eq:NN \@@_makeHfnmark:n \@@_noref_@makeHfnmark:n
   }
 }
 \ExplSyntaxOff
@@ -2257,34 +2221,47 @@ Copyright
 \AtEndOfPackageFile{hyperref}{\@@_define_@makeHfnmark:}
 \ExplSyntaxOff
 %    \end{macrocode}
+% Define a helper function for \cs{\@@_makeHfnmark:n}
 %    \begin{macrocode}
 \ExplSyntaxOn
-\cs_new_nopar:Nn \@@_internal_footnotemark:n {
-    \leavevmode
-    \ifhmode\edef\@x@sf{\the\spacefactor}\nobreak\fi
-    #1
-    \ifhmode\spacefactor\@x@sf\fi
-    \relax
-  }
-\DeclareDocumentCommand{\@@_@footnotemark}{sO{\thefootnote}}{
-  \IfBooleanTF{#1}{\@@_internal_footnotemark:n{\@@_noref_@makeHfnmark:n{#2}}}{\@@_makeHfnmark:n{#2}}
+\cs_new_nopar:Nn \@@_@makeHfnmark_stared:Nn {
+  \IfBooleanTF{#1}{\@@_noref_@makeHfnmark:n{#2}}{\@@_makeHfnmark:n{#2}}
 }
 \ExplSyntaxOff
 %    \end{macrocode}
-%
-% \subsection{\tn{footnotemark}}
-%
-% Change \cs{footnotemark}
+% Now we redefine \tn{@makefnmark}
 %    \begin{macrocode}
-  \renewcommand*\footnotemark{%
-    \@ifnextchar [%]
-    \@xfootnotemark
-    {%
-      \stepcounter{footnote}%
-      \protected@xdef\@thefnmark{\thefootnote}%
-      \@footnotemark
-    }%
-  }
+\ExplSyntaxOn
+\DeclareDocumentCommand{\@@_@makefnmark}{sO{\@thefnmark}}{
+  \@@_@makeHfnmark_stared:Nn{#1}{#2}
+}
+\cs_set_eq:NN \@makefnmark \@@_@makefnmark
+\ExplSyntaxOff
+%    \end{macrocode}
+%
+% \subsection{\tn{@footnotemark}}
+%
+% Change \tn{@footnotemark} to allow a star version (no hyperref) and an optional ref.
+%
+%    \begin{macrocode}
+\ExplSyntaxOn
+\cs_new_nopar:Nn \@@_@footnotemark_stared:Nn {
+  \leavevmode
+  \ifhmode
+    \edef\@x@sf{\the\spacefactor}
+    \FN@mf@check
+    \nobreak
+  \fi
+  \@@_@makeHfnmark_stared:Nn{#1}{#2}
+  \FN@mf@prepare
+  \ifhmode\spacefactor\@x@sf\fi
+  \relax
+}
+\DeclareDocumentCommand{\@@_@footnotemark}{sO{\@thefnmark}}{
+   \@@_@footnotemark_stared:Nn{#1}{#2}
+}
+\cs_set_eq:NN \@footnotemark \@@_@footnotemark
+\ExplSyntaxOff
 %    \end{macrocode}
 %
 % \section{Other miscellaneous commands}
