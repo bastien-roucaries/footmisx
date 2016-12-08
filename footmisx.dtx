@@ -686,6 +686,23 @@ Copyright
 \group_end:
 \ExplSyntaxOff
 %     \end{macrocode}
+% Now we check if \tn{\footnotemark} has been modified. Do it between group in
+% order to not pollute namespace.
+%     \begin{macrocode}
+\ExplSyntaxOn
+\group_begin:
+\def\@@_copy_footnotemark{\@ifnextchar [%]
+    \@xfootnotemark
+    {%
+      \stepcounter{footnote}%
+      \protected@xdef\@thefnmark{\thefootnote}%
+      \@footnotemark
+    }%
+}
+\@@_error_if_neq:NN {\footnotemark} {\@@_copy_footnotemark}
+\group_end:
+\ExplSyntaxOff
+%     \end{macrocode}
 %
 % \subsection{Generalities}
 %
@@ -1623,15 +1640,6 @@ Copyright
 %
 % And the analagous change for \cs{footnotemark}
 %    \begin{macrocode}
-  \CheckCommand*\footnotemark{%
-    \@ifnextchar [%]
-    \@xfootnotemark
-    {%
-      \stepcounter{footnote}%
-      \protected@xdef\@thefnmark{\thefootnote}%
-      \@footnotemark
-    }%
-  }
   \renewcommand*\footnotemark{%
     \@ifnextchar [%]
     \@xfootnotemark
