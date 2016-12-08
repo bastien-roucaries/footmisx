@@ -523,12 +523,46 @@ Copyright
     Expect:\\
     #3\\
    }
+\msg_new:nnn {footmisx} {too old}
+   {The~package~#1~is~too~old~and~thus~not~supported.\\
+    Please~install~a~newer~version~(at~least~version~#2)}
+\ExplSyntaxOff
+%    \end{macrocode}
+
+
+% \subsection{Check package version}
+%
+% Protect against too old package by checking version.
+% \begin{function}{\@@_error_if_too_old:NN}
+%   \begin{syntax}
+%     \cs{@@_error_if_too_old:NN} \Arg{package} \Arg{version}
+%   \end{syntax}
+% Check minimal version and raise an error in case of too old.
+%    \begin{macrocode}
+\ExplSyntaxOn
+\cs_new_nopar:Nn \@@_error_if_too_old:NN {
+  \AtBeginDocument{
+    \ExplSyntaxOn
+    \@ifpackageloaded{#1}{
+      \@ifpackagelater{#1}{#2}{}
+        {\msg_error:nnnn{footmisx}{too old}{#1}{#2}}
+    }{}
+    \ExplSyntaxOff
+  }
+}
+\ExplSyntaxOff
+%    \end{macrocode}
+% \end{function}
+% Check now some minimal supported version
+%    \begin{macrocode}
+\ExplSyntaxOn
+\@@_error_if_too_old:NN{hyperref}{2016/06/24}
 \ExplSyntaxOff
 %    \end{macrocode}
 %
 % \subsection{Check definition}
 %
-% We check definition of some overwriten function.
+% We check definition of some overwriten function. Protect against too recent package.
 % \begin{function}{\@@_error_if_neq:NNc}
 %   \begin{syntax}
 %     \cs{@@_error_if_neq:NNc} \Arg{sequence_1} \Arg{sequence_2} \marg{csname}
@@ -654,7 +688,7 @@ Copyright
 %     \begin{macrocode}
 \ExplSyntaxOn
 \group_begin:
-\@ifpackagelater{hyperref}{2016/06/24}%
+\@ifpackageloaded{hyperref}
 %%hyperef case
 {
   \def\@@_copy_@footnotemark{%
@@ -704,6 +738,15 @@ Copyright
 \ExplSyntaxOff
 %     \end{macrocode}
 %
+% \subsection{Load hook now and at end of some package}
+%     \begin{macrocode}
+\ExplSyntaxOn
+\cs_new:Npn \@@_AtEndOfPackageFile:NN #1#2 {
+#2
+\AtEndOfPackageFile{#1}{#2}
+}
+\ExplSyntaxOn
+%     \end{macrocode}
 % \subsection{Generalities}
 %
 % We save a private macro using csname in order to use lt3doc
@@ -1298,7 +1341,7 @@ Copyright
 %
 % \begin{macro}{\ifFN@baselinestretch}
 % \begin{macro}{\FN@singlespace}
-% Whatever we do, we are going to patch \cs{@footnotetext}; so first
+% Whatever we do, we are going to patch \cs@{footnotetext}; so first
 % of all, we'll check it's not been hacked by anyone other than
 % \texttt{setspace.sty} (while we're at it we also record whether
 % \texttt{setspace} is loaded).
@@ -1442,13 +1485,15 @@ Copyright
 % Now define \cs{@footnotetext} to be \cs{@footmisxnotetext}
 %    \begin{macrocode}
 \ExplSyntaxOn
-\@ifpackageloaded{hyperref}
-{
-  \cs_set_eq:cc {H @ @ footnotetext} {@footmisxnotetext}
-}{
-  \renewcommand{\@footnotetext}[1]{\@footmisxnotetext{#1}}
+\@@_AtEndOfPackageFile:NN {hyperref} {
+  \@ifpackageloaded{hyperref}
+  {
+    \cs_gset_eq:cc {H @ @ footnotetext} {@footmisxnotetext}
+  }{
+    \cs_gset_eq:cc {@footnotetext} {@footmisxnotetext}
+  }
 }
-  \ExplSyntaxOff
+\ExplSyntaxOff
 %    \end{macrocode}
 %
 % \subsection{Support code for paragraph footnotes}
@@ -2124,14 +2169,10 @@ Copyright
 \ExplSyntaxOff
 %    \end{macrocode}
 % \end{function}
-% Now we define a function to set this pointer:
-% \begin{function}{\@@_define_noHref:}
-% \begin{syntax}
-%     \cs{\@@_define_noHref:}
-%   \end{syntax}
+% We run this code now (update) and eventually at end of hyperref file
 %    \begin{macrocode}
 \ExplSyntaxOn
-\cs_new_nopar:Npn \@@_define_noHref: {} {
+\@@_AtEndOfPackageFile:NN {hyperref}{
   \@ifpackageloaded{hyperref}{
     \cs_gset:Nn \@@_noHref:n {\ref*{#1}}
   }
@@ -2141,14 +2182,6 @@ Copyright
 }
 \ExplSyntaxOff
 %    \end{macrocode}
-% We run this code now (update) and eventually at end of hyperref file
-%    \begin{macrocode}
-\ExplSyntaxOn
-\@@_define_noHref:
-\AtEndOfPackageFile{hyperref}{\@@_define_noHref:}
-\ExplSyntaxOff
-%    \end{macrocode}
-% \end{function}
 %
 % \subsection{\cs{@makefnmark}}
 %
@@ -2192,14 +2225,10 @@ Copyright
 \ExplSyntaxOff
 %    \end{macrocode}
 % \end{function}
-% We define a macro in order to enable link for footmark
-% \begin{function}{\@@_define_@makeHfnmark:}
-% \begin{syntax}
-%     \cs{\@@_define_@makeHfnmark:}
-%   \end{syntax}
+% We run this hook now, and at end of hyperref package
 %    \begin{macrocode}
 \ExplSyntaxOn
-\cs_new_nopar:Npn \@@_define_@makeHfnmark: {} {
+\@@_AtEndOfPackageFile:NN {hyperref} {
   \@ifpackageloaded{hyperref}{
     \ifHy@hyperfootnotes
        \cs_gset_eq:NN \@@_makeHfnmark:n \@@_hyperref_@makeHfnmark:n
@@ -2211,14 +2240,6 @@ Copyright
     \cs_gset_eq:NN \@@_makeHfnmark:n \@@_noref_@makeHfnmark:n
   }
 }
-\ExplSyntaxOff
-%    \end{macrocode}
-% \end{function}
-% We run this hook now, and at end of hyperref package
-%    \begin{macrocode}
-\ExplSyntaxOn
-\@@_define_@makeHfnmark:
-\AtEndOfPackageFile{hyperref}{\@@_define_@makeHfnmark:}
 \ExplSyntaxOff
 %    \end{macrocode}
 % Define a helper function for \cs{\@@_makeHfnmark:n}
@@ -2260,7 +2281,9 @@ Copyright
 \DeclareDocumentCommand{\@@_@footnotemark}{sO{\@thefnmark}}{
    \@@_@footnotemark_stared:Nn{#1}{#2}
 }
-\cs_set_eq:NN \@footnotemark \@@_@footnotemark
+\@@_AtEndOfPackageFile:NN {hyperref} {
+  \cs_gset_eq:NN \@footnotemark \@@_@footnotemark
+}
 \ExplSyntaxOff
 %    \end{macrocode}
 %
@@ -2295,7 +2318,7 @@ Copyright
 %
 % \subsection{Footnote references}
 %
-% \begin{macro}{\footref}
+%
 % Syntax: \cs{footref}\marg{label-name}
 %
 % One often wishes to refer to a footnote; in some circumstances,
@@ -2309,17 +2332,25 @@ Copyright
 % rather than defining it ``outright''.)
 %    \begin{macrocode}
 \ExplSyntaxOn
-\ProvideDocumentCommand\footref{s m}
-{
+\cs_new_nopar:Nn \@@_footref_stared:Nn {
   \textfootmark{
     \IfBooleanTF{#1}
       {\@@_noHref:n{#2}}
       {\ref{#2}}
   }
 }
+\DeclareDocumentCommand {\@@_footref} {s m}
+{
+    \@@_footref_stared:Nn{#1}{#2}
+}
 \ExplSyntaxOff
 %    \end{macrocode}
-% \end{macro}
+% We run hook now and at end of hyperref
+%    \begin{macrocode}
+\ExplSyntaxOn
+\@@_AtEndOfPackageFile:NN {hyperref} {\cs_gset_eq:NN \footref \@@_footref}
+\ExplSyntaxOff
+%    \end{macrocode}
 %
 % \subsection{Minipage \cs{footnotemark}s}
 %
