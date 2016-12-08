@@ -485,8 +485,6 @@ Copyright
 %   has ambitions to make hyperlinks from footnote marks to the
 %   corresponding footnote body;  \textsf{footmisx} knows about this,
 %   and preserves hyperlink.
-%   However, you \emph{must} load \textsf{hyperref} \emph{before}
-%   \textsf{footmisx}.
 % \item[\normalfont\textsf{manyfoot}] The \textsf{manyfoot} package
 %   permits several independent sequences of footnotes.  Some
 %   preliminary work towards interworking with \textsf{footmisx} has
@@ -528,8 +526,7 @@ Copyright
     Please~install~a~newer~version~(at~least~version~#2)}
 \ExplSyntaxOff
 %    \end{macrocode}
-
-
+%
 % \subsection{Check package version}
 %
 % Protect against too old package by checking version.
@@ -739,6 +736,7 @@ Copyright
 %     \end{macrocode}
 %
 % \subsection{Load hook now and at end of some package}
+%
 %     \begin{macrocode}
 \ExplSyntaxOn
 \cs_new:Npn \@@_AtEndOfPackageFile:NN #1#2 {
@@ -747,6 +745,7 @@ Copyright
 }
 \ExplSyntaxOn
 %     \end{macrocode}
+%
 % \subsection{Generalities}
 %
 % We save a private macro using csname in order to use lt3doc
@@ -770,28 +769,6 @@ Copyright
 }%    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\l@advance@macro}
-% \begin{macro}{@footmisx@dvance@macro}
-% \begin{macro}{\@advance@macro}
-% We make the following (\cs{@footmisx@dvance@macro}) generalisable as follows
-% (the global form isn't used in this package \dots\ yet):
-%
-%    \begin{macrocode}
-\def\l@advance@macro{\@footmisx@dvance@macro\edef}
-\def\@footmisx@dvance@macro#1#2#3{\expandafter\@tempcnta#2\relax
-  \advance\@tempcnta#3\relax
-  #1#2{\the\@tempcnta}%
-}
-%    \end{macrocode}
-%
-% Now we define a jolly little macro to advance a macro count (|#1|)
-% by a given amount (|#2|).
-%    \begin{macrocode}
-\let\@advance@macro\l@advance@macro
-%    \end{macrocode}
-% \end{macro}
-% \end{macro}
-% \end{macro}
 % \begin{macro}{\footnotemargin}
 % Finally, we define the length used by the \texttt{marginal} option,
 % and initialise it as if we've not had the option.
