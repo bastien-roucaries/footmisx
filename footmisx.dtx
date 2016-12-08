@@ -1962,7 +1962,7 @@ Copyright
         \hb@xt@ \footnotemargin{\hss\textfootmark{\@thefnmark}}%
       \else
         \ifdim\footnotemargin=\z@
-          \llap{\footnotemarkstyle{\@thefnmark}}%
+          \llap{\textfootmark{\@thefnmark}}%
         \else
           \llap{\hb@xt@ -\footnotemargin{\textfootmark{\@thefnmark}\hss}}%
         \fi
@@ -2007,22 +2007,7 @@ Copyright
 % precautions to ensure that the kerns are the last things added to
 % the horizontal list by the commands.
 %    \begin{macrocode}
-\@ifpackageloaded{hyperref}{
-    \newcommand*{\@footmicx@makefnmark}{%
-      \textfootmark{%
-      \stepcounter{Hfootnote}%
-      \global\let\Hy@saved@currentHref\@currentHref%
-      \hyper@makecurrent{Hfootnote}%
-      \global\let\Hy@footnote@currentHref\@currentHref%
-      \global\let\@currentHref\Hy@saved@currentHref%
-      \hyper@linkstart{link}{\Hy@footnote@currentHref}%
-      \@thefnmark%
-      \hyper@linkend%
-      }%
-    }
-  }{
-      \newcommand*{\@footmicx@makefnmark}{\textfootmark{\@thefnmark}}
-  }
+\ExplSyntaxOn
 \newcommand*\@footmisxnotemark{%
     \leavevmode
     \ifhmode
@@ -2030,7 +2015,7 @@ Copyright
       \FN@mf@check
       \nobreak
     \fi
-    \@footmicx@makefnmark
+    \@@_makeHfnmark:n {\@thefnmark}
 %    \end{macrocode}
 %
 % if we're also doing option \texttt{perpage}, write its stuff to the
@@ -2042,6 +2027,7 @@ Copyright
     \ifhmode\spacefactor\@x@sf\fi
     \relax
   }
+\ExplSyntaxOff
 \let\@footnotemark\@footmisxnotemark
 \ifFN@multiplefootnote
   \providecommand*{\multiplefootnotemarker}{3sp}
@@ -2533,6 +2519,7 @@ Copyright
 %    \begin{macrocode}
 \ExplSyntaxOn
 \cs_new_nopar:Nn \@@_hyperref_@makeHfnmark:n {
+    \textfootmark{
     \stepcounter{Hfootnote}%
     \global\let\Hy@saved@currentHref\@currentHref
     \hyper@makecurrent{Hfootnote}%
@@ -2541,6 +2528,7 @@ Copyright
     \hyper@linkstart{link}{\Hy@footnote@currentHref}%
     #1
     \hyper@linkend
+    }
 }
 \ExplSyntaxOff
 %    \end{macrocode}
@@ -2554,7 +2542,7 @@ Copyright
 %    \begin{macrocode}
 \ExplSyntaxOn
 \cs_new_nopar:Nn \@@_noref_@makeHfnmark:n {
-    #1
+    \textfootmark{#1}
 }
 \ExplSyntaxOff
 %    \end{macrocode}
@@ -2568,7 +2556,11 @@ Copyright
 \ExplSyntaxOn
 \cs_new_nopar:Npn \@@_define_@makeHfnmark: {} {
   \@ifpackageloaded{hyperref}{
-    \cs_gset_eq:NN \@@_makeHfnmark:n \@@_hyperref_@makeHfnmark:n 
+    \ifHy@hyperfootnotes
+       \cs_gset_eq:NN \@@_makeHfnmark:n \@@_hyperref_@makeHfnmark:n
+    \else
+       \cs_gset_eq:NN \@@_makeHfnmark:n \@@_noref_@makeHfnmark:n
+    \fi
   }
   {
     \cs_gset_eq:NN \@@_makeHfnmark:n \@@_noref_@makeHfnmark:n 
