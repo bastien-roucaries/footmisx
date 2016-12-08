@@ -1612,7 +1612,6 @@ Copyright
 %</PPdebug>
 %    \end{macrocode}
 % \end{macro}
-%
 % Now, do we need to patch \cs{footnote} for per-page footnotes?
 %    \begin{macrocode}
 \ifFN@perpage
@@ -1634,19 +1633,6 @@ Copyright
     {%
       \stepcounter\@mpfn \protected@xdef\@thefnmark{\thempfn}%
       \FN@pp@footnote\@footnotemark \@footnotetext
-    }%
-  }
-%    \end{macrocode}
-%
-% And the analagous change for \cs{footnotemark}
-%    \begin{macrocode}
-  \renewcommand*\footnotemark{%
-    \@ifnextchar [%]
-    \@xfootnotemark
-    {%
-      \stepcounter{footnote}%
-      \protected@xdef\@thefnmark{\thefootnote}%
-      \FN@pp@footnote\@footnotemark
     }%
   }
 %    \end{macrocode}
@@ -1911,6 +1897,7 @@ Copyright
 %    \begin{macrocode}
 \else
 \let\FN@pp@writehook\relax
+\let\FN@pp@footnote\relax
 \fi
 %    \end{macrocode}
 %
@@ -2563,6 +2550,21 @@ Copyright
   \IfValueTF{#1}{\@@_internal_footnotemark:n{\@@_noref_@makeHfnmark:n{#2}}}{\@@_makeHfnmark:n{#2}}
 }
 \ExplSyntaxOff
+%    \end{macrocode}
+%
+% \subsection{\tn{footnotemark}}
+%
+% Change \cs{footnotemark}
+%    \begin{macrocode}
+  \renewcommand*\footnotemark{%
+    \@ifnextchar [%]
+    \@xfootnotemark
+    {%
+      \stepcounter{footnote}%
+      \protected@xdef\@thefnmark{\thefootnote}%
+      \FN@pp@footnote\@footnotemark
+    }%
+  }
 %    \end{macrocode}
 %
 % \section{Other miscellaneous commands}
