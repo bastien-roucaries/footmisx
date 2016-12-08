@@ -1599,7 +1599,7 @@ Copyright
 % Now, do we need to patch \cs{footnote} for per-page footnotes?
 %    \begin{macrocode}
 \ifFN@perpage
-  \def\FN@pp@writestub{
+  \def\FN@pp@writehook{
     \ifFN@pp@towrite
         \FN@pp@writetemp
         \FN@pp@towritefalse
@@ -1623,10 +1623,7 @@ Copyright
 % \cs{@footnotemark} \emph{won't} have written details to the |.aux|
 % file, so do it now:
 %    \begin{macrocode}
-      \ifFN@pp@towrite
-        \FN@pp@writetemp
-        \FN@pp@towritefalse
-      \fi
+      \FN@pp@writehook
       \@footnotetext
     }%
   }
@@ -1920,6 +1917,8 @@ Copyright
 %
 % End of code loaded when \texttt{perpage} option is given
 %    \begin{macrocode}
+\else
+\let\FN@pp@writehook\relax
 \fi
 %    \end{macrocode}
 %
@@ -2060,10 +2059,7 @@ Copyright
 % |.aux| file for it, so the \emph{wotsit} node doesn't interfere with
 % our \cs{kern} detection.
 %    \begin{macrocode}
-    \ifFN@pp@towrite
-      \FN@pp@writetemp
-      \FN@pp@towritefalse
-    \fi
+    \FN@pp@writehook
     \FN@mf@prepare
     \ifhmode\spacefactor\@x@sf\fi
     \relax
