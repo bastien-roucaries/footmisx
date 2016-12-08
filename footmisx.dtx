@@ -2009,14 +2009,16 @@ Copyright
 %    \begin{macrocode}
 \@ifpackageloaded{hyperref}{
     \newcommand*{\@footmicx@makefnmark}{%
+      \textfootmark{%
       \stepcounter{Hfootnote}%
       \global\let\Hy@saved@currentHref\@currentHref%
       \hyper@makecurrent{Hfootnote}%
       \global\let\Hy@footnote@currentHref\@currentHref%
       \global\let\@currentHref\Hy@saved@currentHref%
       \hyper@linkstart{link}{\Hy@footnote@currentHref}%
-      \textfootmark{\@thefnmark}%
+      \@thefnmark%
       \hyper@linkend%
+      }%
     }
   }{
       \newcommand*{\@footmicx@makefnmark}{\textfootmark{\@thefnmark}}
@@ -2474,7 +2476,11 @@ Copyright
 %
 % \subsection{Tools}
 %
-% Here we define some tools functions. First we define a pointer
+% Here we define some tools functions.
+%
+% \subsubsection{\cs{@@_noHref:n}}
+%
+% First we define a pointer
 % to \tn{ref*} if \texttt{hyperref} is loaded or \tn{ref} if not
 % loaded.
 % \begin{function}{\@@_noHref:n}
