@@ -48,6 +48,7 @@ Copyright
 %<*driver|package>
 \RequirePackage{expl3}[2015/09/11]
 \RequirePackage{xparse}
+\RequirePackage{filehook}[2011/01/09]
 \ProvidesExplPackage{footmisx}{2016/12/01}{20161201}{miscellany of footnote facility}
 \ExplSyntaxOff
 %</driver|package>
@@ -460,6 +461,7 @@ Copyright
 % ...\footnote{Note text\label{fnlabel}}
 % ...
 % ... potato head\footref{fnlabel}
+% ... potato head\footref*{fnlabel} without link.
 % \end{verbatim}
 %
 % \section{User interface~--- interactions with other packages}
@@ -641,11 +643,49 @@ Copyright
 %   \begin{macrocode}
 \ExplSyntaxOn
 \group_begin:
-  \def\@@_copy_makefnmark{\hbox{\@textsuperscript{\normalfont\@thefnmark}}}
-  \@@_warning_if_neq:NN {\@makefnmark} {\@@_copy_makefnmark}
+  \def\@@_copy_@makefnmark{\hbox{\@textsuperscript{\normalfont\@thefnmark}}}
+  \@@_warning_if_neq:NN {\@makefnmark} {\@@_copy_@makefnmark}
 \group_end:
 \ExplSyntaxOff
 %    \end{macrocode}
+%
+% Now we check if \tn{\@footnotemark} has been modified. Do it between group in
+% order to not pollute namespace.
+%     \begin{macrocode}
+\ExplSyntaxOn
+\group_begin:
+\@ifpackagelater{hyperref}{2016/06/24}%
+%%hyperef case
+{
+  \def\@@_copy_@footnotemark{%
+    \leavevmode
+    \ifhmode\edef\@x@sf{\the\spacefactor}\nobreak\fi
+    \stepcounter{Hfootnote}%
+    \global\let\Hy@saved@currentHref\@currentHref
+    \hyper@makecurrent{Hfootnote}%
+    \global\let\Hy@footnote@currentHref\@currentHref
+    \global\let\@currentHref\Hy@saved@currentHref
+    \hyper@linkstart{link}{\Hy@footnote@currentHref}%
+    \@makefnmark
+    \hyper@linkend
+    \ifhmode\spacefactor\@x@sf\fi
+    \relax
+  }%
+}
+%% latex case
+{
+  \def\@@_copy_@footnotemark{
+    \leavevmode
+    \ifhmode\edef\@x@sf{\the\spacefactor}\nobreak\fi
+    \@makefnmark
+    \ifhmode\spacefactor\@x@sf\fi
+    \relax
+  }
+}
+\@@_error_if_neq:NN {\@footnotemark} {\@@_copy_@footnotemark}
+\group_end:
+\ExplSyntaxOff
+%     \end{macrocode}
 %
 % \subsection{Generalities}
 %
@@ -1456,7 +1496,7 @@ Copyright
 %
 %    \begin{macrocode}
   \long\def\@makefntext#1{\leavevmode
-    \@makefnmark\nobreak
+    \footnotemarkstyle{\@thefnmark}\nobreak
     \hskip.5em\relax#1%
   }
 %    \end{macrocode}
@@ -1559,6 +1599,12 @@ Copyright
 % Now, do we need to patch \cs{footnote} for per-page footnotes?
 %    \begin{macrocode}
 \ifFN@perpage
+  \def\FN@pp@writestub{
+    \ifFN@pp@towrite
+        \FN@pp@writetemp
+        \FN@pp@towritefalse
+      \fi
+  }
   \CheckCommand*\footnote{\@ifnextchar [%]
     \@xfootnote
     {%
@@ -1897,9 +1943,9 @@ Copyright
 %    \begin{macrocode}
       \setbox\@tempboxa\hbox{%
         \ifdim\footnotemargin>0pt
-          \hb@xt@\footnotemargin{\@makefnmark\hss}%
+          \hb@xt@\footnotemargin{\footnotemarkstyle{\@thefnmark}\hss}%
         \else
-          \@makefnmark
+          \footnotemarkstyle{\@thefnmark}
         \fi
       }%
 %    \end{macrocode}
@@ -1935,12 +1981,12 @@ Copyright
       \parindent1em
       \noindent
       \ifdim\footnotemargin>\z@
-        \hb@xt@ \footnotemargin{\hss\@makefnmark}%
+        \hb@xt@ \footnotemargin{\hss\footnotemarkstyle{\@thefnmark}}%
       \else
         \ifdim\footnotemargin=\z@
-          \llap{\@makefnmark}%
+          \llap{\footnotemarkstyle{\@thefnmark}}%
         \else
-          \llap{\hb@xt@ -\footnotemargin{\@makefnmark\hss}}%
+          \llap{\hb@xt@ -\footnotemargin{\footnotemarkstyle{\@thefnmark}\hss}}%
         \fi
       \fi
     \fi
@@ -1994,7 +2040,7 @@ Copyright
       \global\let\Hy@footnote@currentHref\@currentHref%
       \global\let\@currentHref\Hy@saved@currentHref%
       \hyper@linkstart{link}{\Hy@footnote@currentHref}%
-      \@makefnmark%
+      \footnotemarkstyle{\@thefnmark}%
       \hyper@linkend%
     }
   }{
@@ -2034,13 +2080,6 @@ Copyright
       \spacefactor\@x@sf\relax
     \fi
   }
-  \CheckCommand*\@footnotemark{%
-    \leavevmode
-    \ifhmode\edef\@x@sf{\the\spacefactor}\nobreak\fi
-    \@makefnmark
-    \ifhmode\spacefactor\@x@sf\fi
-    \relax
-  }
   \let\@footnotemark\@footmisxnotemark
 
 %    \end{macrocode}
@@ -2048,6 +2087,7 @@ Copyright
 % If we're not doing multiple, just create an empty \cs{FN@mf@prepare}
 %    \begin{macrocode}
 \else
+  \let\FN@mf@check\relax
   \let\FN@mf@prepare\relax
 \fi
 %    \end{macrocode}
@@ -2455,15 +2495,98 @@ Copyright
 % \end{macro}
 % \end{macro}
 %
+%
+% \section{Core function}
+%
+% \subsection{\cs{@footnotemark}}
+%
+% Update \tn{@footnotemark} in order to accept an optional argument, 
+% the counter to update and a stared version in order to not use hyperlink.
+%
+% First we define the hyperref hook
+% \begin{function}{\@@_hyperref_@makeHfnmark:n}
+%   \begin{syntax}
+%     \cs{@@_hyperref_@makeHfnmark:n} \Arg{marktoset}
+%   \end{syntax}
+%   Set a mark anchor in case of hyperref
+%    \begin{macrocode}
+\ExplSyntaxOn
+\cs_new_nopar:Nn \@@_hyperref_@makeHfnmark:n {
+    \stepcounter{Hfootnote}%
+    \global\let\Hy@saved@currentHref\@currentHref
+    \hyper@makecurrent{Hfootnote}%
+    \global\let\Hy@footnote@currentHref\@currentHref
+    \global\let\@currentHref\Hy@saved@currentHref
+    \hyper@linkstart{link}{\Hy@footnote@currentHref}%
+    #1
+    \hyper@linkend
+}
+\ExplSyntaxOff
+%    \end{macrocode}
+% \end{function}
+% We define the hyperref hook run when hyperref is not loaded
+% \begin{function}{\@@_noref_@makeHfnmark}
+%   \begin{syntax}
+%     \cs{@@_noref_@makeHfnmark} \Arg{marktoset}
+%   \end{syntax}
+%   Set a mark anchor in case of hyperref
+%    \begin{macrocode}
+\ExplSyntaxOn
+\cs_new_nopar:Nn \@@_noref_@makeHfnmark:n {
+    #1
+}
+\ExplSyntaxOff
+%    \end{macrocode}
+% \end{function}
+% We define a macro in order to enable link for footmark
+% \begin{function}{\@@_define_@makeHfnmark:}
+% \begin{syntax}
+%     \cs{\@@_define_@makeHfnmark:}
+%   \end{syntax}
+%    \begin{macrocode}
+\ExplSyntaxOn
+\cs_new_nopar:Npn \@@_define_@makeHfnmark: {} {
+  \@ifpackageloaded{hyperref}{
+    \cs_gset_eq:NN \@@_makeHfnmark:n \@@_hyperref_@makeHfnmark:n 
+  }
+  {
+    \cs_gset_eq:NN \@@_makeHfnmark:n \@@_noref_@makeHfnmark:n 
+  }
+}
+\ExplSyntaxOff
+%    \end{macrocode}
+% \end{function}
+% We run this hook now, and at end of hyperref package
+%    \begin{macrocode}
+\ExplSyntaxOn
+\@@_define_@makeHfnmark:
+\AtEndOfPackageFile{hyperref}{\@@_define_@makeHfnmark:}
+\ExplSyntaxOff
+%    \end{macrocode}
+%    \begin{macrocode}
+\ExplSyntaxOn
+\cs_new_nopar:Nn \@@_internal_footnotemark:n {
+    \leavevmode
+    \ifhmode\edef\@x@sf{\the\spacefactor}\nobreak\fi
+    #1
+    \ifhmode\spacefactor\@x@sf\fi
+    \relax
+  }
+\DeclareDocumentCommand{\@@_@footnotemark}{sO{\thefootnote}}{
+  \IfValueTF{#1}{\@@_internal_footnotemark:n{\@@_noref_@makeHfnmark:n{#2}}}{\@@_makeHfnmark:n{#2}}
+}
+\ExplSyntaxOff
+%    \end{macrocode}
+%
 % \section{Other miscellaneous commands}
 %
 % \subsection{Footnote mark style}
 %
-% \begin{macro}{\footnotemakestyle}
+% \begin{macro}{\footnotemarkstyle}
 % Syntax \cs{footnotemarkstyle}\marg{text}
 %
 % Typographically set the text in the same style than a raw
-% footnotemark (it is in fact a generic version of \tn{\@makefnmark})
+% footnotemark (it is in fact a generic version of \tn{@makefnmark})
 %    \begin{macrocode}
 \ExplSyntaxOn
 \NewDocumentCommand{\footnotemarkstyle}{m}
@@ -2471,6 +2594,18 @@ Copyright
 \ExplSyntaxOff
 %    \end{macrocode}
 % \end{macro}
+%
+% Now redefine old @makefnmark to use this function:
+% \begin{macro}{\@makefnmark}
+% Syntax \cs{@makefnmark}\oarg{text}
+%    \begin{macrocode}
+\ExplSyntaxOn
+\RenewDocumentCommand{\@makefnmark}{O{\@thefnmark}}
+    {\footnotemarkstyle{#1}}
+\ExplSyntaxOff
+%    \end{macrocode}
+% \end{macro}
+%
 %
 % \subsection{Footnote references}
 %
