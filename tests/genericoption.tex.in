@@ -3,7 +3,7 @@
 \usepackage{ifthen}
 \usepackage{currfile}
 
-\usepackage{hyperref}
+\usepackage[backref]{hyperref}
 
 \ifcurrfile{\currfilename}{default.tex}{
     \usepackage{footmisx}

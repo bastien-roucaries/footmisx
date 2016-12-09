@@ -479,8 +479,9 @@ Copyright
 % \item[\normalfont\textsf{setspace}] The \textsf{setspace} package
 %   modifies the way line spacing is calculated in footnotes.
 %   \textsf{footmisx} knows about this, and preserves the change.
-%   However, you \emph{must} load \textsf{setspace} \emph{before}
-%   \textsf{footmisx}.
+%   
+%   Note that \textsf{setspace} could be loaded anywhere except between 
+%   \textsf{hyperref} and \textsf{footmisx}.
 % \item[\normalfont\textsf{memoir} class] The class emulates
 %   \textsf{setspace}, and we detect that emulation and deal with it
 %   in the same way as \textsf{setspace}.
@@ -558,6 +559,7 @@ Copyright
 % Check now some minimal supported version
 %    \begin{macrocode}
 \@@_error_if_too_old:NN{hyperref}{2016/06/24}
+\@@_error_if_too_old:NN{setspace}{2011/12/19}
 %    \end{macrocode}
 %
 % \subsection{Check definition}
@@ -734,7 +736,6 @@ Copyright
 #2
 \AtEndOfPackageFile{#1}{#2}
 }
-\ExplSyntaxOff
 %    \end{macrocode}
 % \end{function}
 
@@ -742,7 +743,6 @@ Copyright
 %
 % We save a private macro using csname in order to use lt3doc
 %    \begin{macrocode}
-\ExplSyntaxOn
 \cs_set_eq:cc {@@_par} {@ @ par}
 \ExplSyntaxOff
 %    \end{macrocode}
@@ -1303,166 +1303,6 @@ Copyright
 % conditional.
 %    \begin{macrocode}
 \fi
-%    \end{macrocode}
-%
-%
-% \subsection{The requirements of \cs{@footnotetext}}
-%
-% \begin{macro}{\ifFN@baselinestretch}
-% \begin{macro}{\FN@singlespace}
-% Whatever we do, we are going to patch \cs@{footnotetext}; so first
-% of all, we'll check it's not been hacked by anyone other than
-% \texttt{setspace.sty} (while we're at it we also record whether
-% \texttt{setspace} is loaded).
-% so we do this here:
-%    \begin{macrocode}
-\newif\ifFN@setspace
-\@ifpackageloaded{setspace}{%
-  \FN@setspacetrue
-  \@ifclassloaded{memoir}{%
-%    \end{macrocode}
-% we're seeing \textsf{memoir}'s emulation of \textsf{setspace}
-%    \begin{macrocode}
-    \let\FN@baselinestretch\m@m@singlespace
-  }{%
-%    \end{macrocode}
-% we're seeing \textsf{setspace} in its own right
-%    \begin{macrocode}
-    \let\FN@baselinestretch\setspace@singlespace
-  }%
-}{%
-  \FN@setspacefalse
-}
-%    \end{macrocode}
-% \end{macro}
-% \end{macro}
-%
-% There's substantial patching to be done if we're doing paragraph
-% footnotes:
-%    \begin{macrocode}
-\ifFN@para
-  \newcommand\@footmisxnotetext[1]{%
-    \insert\footins{%
-%    \end{macrocode}
-% insert compatibility code with |setspace.sty| if necessary
-%    \begin{macrocode}
-      \ifFN@setspace
-        \let\baselinestretch\FN@baselinestretch
-      \fi
-      \reset@font\footnotesize
-      \interlinepenalty\interfootnotelinepenalty
-      \splittopskip\footnotesep
-      \splitmaxdepth \dp\strutbox
-      \floatingpenalty\@MM
-      \hsize\columnwidth
-      \@parboxrestore
-      \protected@edef\@currentlabel{\csname p@footnote\endcsname\@thefnmark}%
-      \color@begingroup
-%    \end{macrocode}
-%
-% We set the paragraph in an \cs{hbox} and apply the fudge factor
-% here:
-%
-%    \begin{macrocode}
-        \setbox\FN@tempboxa=\hbox{%
-%    \end{macrocode}
-%
-% This needs a parameter; the rule should be moved to the beginning of
-% the footnote paragraph, but the \cs{ignorespaces} should be left
-% here.
-%
-%    \begin{macrocode}
-          \@makefntext{\ignorespaces#1\strut
-%    \end{macrocode}
-%
-% We insert a penalty here to help line breaking in the
-% footnote paragraph; the value is taken from the \TeX{}book.
-%
-%    \begin{macrocode}
-            \penalty-10\relax
-            \hskip\footglue
-          }% end of \@makefntext parameter
-        }% end of \hbox
-        \dp\FN@tempboxa=0pt
-        \ht\FN@tempboxa=\dimexpr\wd\FN@tempboxa *
-                          \footnotebaselineskip / \columnwidth\relax
-        \box\FN@tempboxa
-      \color@endgroup
-    }%
-    \FN@mf@prepare
-  }
-%    \end{macrocode}
-%
-% If we're not doing paragraph footnotes, we now simply tag a
-% \cs{FN@mf@prepare} command on the end of the definition; of course,
-% there are different definitions according as whether we're using
-% |side| footnotes\dots
-%    \begin{macrocode}
-\else
-  \ifFN@sidefn
-    \newcommand\@footmisxnotetext[1]{%
-      \marginpar{%
-%    \end{macrocode}
-% insert compatibility code with |setspace.sty| if necessary
-%    \begin{macrocode}
-        \ifFN@setspace
-          \let\baselinestretch\FN@baselinestretch
-        \fi
-        \reset@font\footnotesize
-        \protected@edef\@currentlabel{%
-          \csname p@footnote\endcsname\@thefnmark
-        }%
-        \color@begingroup
-          \@makefntext{%
-            \ignorespaces#1%
-          }%
-        \color@endgroup
-      }%
-      \FN@mf@prepare
-    }%
-  \else
-    \newcommand\@footmisxnotetext[1]{%
-      \insert\footins{%
-%    \end{macrocode}
-% insert compatibility code with \textsf{setspace} if necessary
-%    \begin{macrocode}
-        \ifFN@setspace
-          \let\baselinestretch\FN@baselinestretch
-        \fi
-        \reset@font\footnotesize
-        \interlinepenalty\interfootnotelinepenalty
-        \splittopskip\footnotesep
-        \splitmaxdepth \dp\strutbox
-        \floatingpenalty\@MM
-        \hsize\columnwidth
-        \@parboxrestore
-        \protected@edef\@currentlabel{%
-          \csname p@footnote\endcsname\@thefnmark
-        }%
-        \color@begingroup
-          \@makefntext{%
-            \rule\z@\footnotesep
-            \ignorespaces#1\@finalstrut\strutbox
-          }%
-        \color@endgroup
-      }%
-      \FN@mf@prepare
-    }%
-  \fi
-\fi
-%    \end{macrocode}
-% Now define \cs{@footnotetext} to be \cs{@footmisxnotetext}
-%    \begin{macrocode}
-\ExplSyntaxOn
-\@@_AtEndOfPackageFile_and_now:NN {hyperref} {
-  \@ifpackageloaded{hyperref}
-  {
-    \cs_gset_eq:cc {H @ @ footnotetext} {@footmisxnotetext}
-  }{
-    \cs_gset_eq:cc {@footnotetext} {@footmisxnotetext}
-  }
-}
-\ExplSyntaxOff
 %    \end{macrocode}
 %
 % \subsection{Support code for paragraph footnotes}
@@ -2254,6 +2094,185 @@ Copyright
   \cs_gset_eq:NN \@footnotemark \@@_@footnotemark
 }
 \ExplSyntaxOff
+%    \end{macrocode}
+%
+% \subsection{\cs{@footnotetext}}
+%
+% \begin{macro}{\ifFN@baselinestretch}
+% \begin{macro}{\FN@singlespace}
+% Whatever we do, we are going to patch \cs@{footnotetext}; so first
+% of all, we'll check it's not been hacked by anyone other than
+% \texttt{setspace.sty} (while we're at it we also record whether
+% \texttt{setspace} is loaded).
+% so we do this here:
+%    \begin{macrocode}
+\ExplSyntaxOn
+\newif\ifFN@setspace
+\@@_AtEndOfPackageFile_and_now:NN {setspace} {
+\@ifpackageloaded{setspace}{%
+  \FN@setspacetrue
+  \@ifclassloaded{memoir}{%
+%    \end{macrocode}
+% we're seeing \textsf{memoir}'s emulation of \textsf{setspace}
+%    \begin{macrocode}
+    \let\FN@baselinestretch\m@m@singlespace
+  }{%
+%    \end{macrocode}
+% we're seeing \textsf{setspace} in its own right
+%    \begin{macrocode}
+    \let\FN@baselinestretch\setspace@singlespace
+  }%
+}{%
+  \FN@setspacefalse
+}
+}
+\ExplSyntaxOff
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% There's substantial patching to be done if we're doing paragraph
+% footnotes:
+%    \begin{macrocode}
+\ifFN@sidefn
+    \newcommand\@footmisxnotetext[1]{%
+      \marginpar{%
+%    \end{macrocode}
+% insert compatibility code with |setspace.sty| if necessary
+%    \begin{macrocode}
+        \ifFN@setspace
+          \let\baselinestretch\FN@baselinestretch
+        \fi
+        \reset@font\footnotesize
+        \protected@edef\@currentlabel{%
+          \csname p@footnote\endcsname\@thefnmark
+        }%
+        \color@begingroup
+          \@makefntext{%
+            \ignorespaces#1%
+          }%
+        \color@endgroup
+      }%
+      \FN@mf@prepare
+    }%
+\else
+\ifFN@para
+  \newcommand\@footmisxnotetext[1]{%
+    \insert\footins{%
+%    \end{macrocode}
+% insert compatibility code with |setspace.sty| if necessary
+%    \begin{macrocode}
+      \ifFN@setspace
+        \let\baselinestretch\FN@baselinestretch
+      \fi
+      \reset@font\footnotesize
+      \interlinepenalty\interfootnotelinepenalty
+      \splittopskip\footnotesep
+      \splitmaxdepth \dp\strutbox
+      \floatingpenalty\@MM
+      \hsize\columnwidth
+      \@parboxrestore
+      \protected@edef\@currentlabel{\csname p@footnote\endcsname\@thefnmark}%
+      \color@begingroup
+%    \end{macrocode}
+%
+% We set the paragraph in an \cs{hbox} and apply the fudge factor
+% here:
+%
+%    \begin{macrocode}
+        \setbox\FN@tempboxa=\hbox{%
+%    \end{macrocode}
+%
+% This needs a parameter; the rule should be moved to the beginning of
+% the footnote paragraph, but the \cs{ignorespaces} should be left
+% here.
+%
+%    \begin{macrocode}
+          \@makefntext{\ignorespaces#1\strut
+%    \end{macrocode}
+%
+% We insert a penalty here to help line breaking in the
+% footnote paragraph; the value is taken from the \TeX{}book.
+%
+%    \begin{macrocode}
+            \penalty-10\relax
+            \hskip\footglue
+          }% end of \@makefntext parameter
+        }% end of \hbox
+        \dp\FN@tempboxa=0pt
+        \ht\FN@tempboxa=\dimexpr\wd\FN@tempboxa *
+                          \footnotebaselineskip / \columnwidth\relax
+        \box\FN@tempboxa
+      \color@endgroup
+    }%
+    \FN@mf@prepare
+  }
+%    \end{macrocode}
+%
+% If we're not doing paragraph footnotes, we now simply tag a
+% \cs{FN@mf@prepare} command on the end of the definition; of course,
+% there are different definitions according as whether we're using
+% |side| footnotes\dots
+%    \begin{macrocode}
+  \else
+    \newcommand\@footmisxnotetext[1]{%
+      \insert\footins{%
+%    \end{macrocode}
+% insert compatibility code with \textsf{setspace} if necessary
+%    \begin{macrocode}
+        \ifFN@setspace
+          \let\baselinestretch\FN@baselinestretch
+        \fi
+        \reset@font\footnotesize
+        \interlinepenalty\interfootnotelinepenalty
+        \splittopskip\footnotesep
+        \splitmaxdepth \dp\strutbox
+        \floatingpenalty\@MM
+        \hsize\columnwidth
+        \@parboxrestore
+        \protected@edef\@currentlabel{%
+          \csname p@footnote\endcsname\@thefnmark
+        }%
+        \color@begingroup
+          \@makefntext{%
+            \rule\z@\footnotesep
+            \ignorespaces#1\@finalstrut\strutbox
+          }%
+        \color@endgroup
+      }%
+      \FN@mf@prepare
+    }%
+  \fi
+\fi
+%    \end{macrocode}
+% Now define \cs{@footnotetext} to be \cs{@footmisxnotetext}. 
+% If setspace was loaded before \textsf{hyperref} we revert the change
+% by using our code as \textsf{hypperef} hook.
+%    \begin{macrocode}
+\ExplSyntaxOn
+\@@_AtEndOfPackageFile_and_now:NN {hyperref} {
+  \@ifpackageloaded{hyperref}
+  {
+    \cs_gset_eq:cc {H @ @ footnotetext} {@footmisxnotetext}
+  }{
+    \cs_gset_eq:cc {@footnotetext} {@footmisxnotetext}
+  }
+}
+\ExplSyntaxOff
+%    \end{macrocode}
+% Disable \textsf{setspace} hook.
+%    \begin{macrocode}
+\ExplSyntaxOn
+\AtBeginOfPackageFile{setspace}{
+  \cs_gset_eq:cc {@@_saved_setsave_@footnotetext} {@footnotetext}
+  \cs_gset_eq:cc {@@_saved_setsave_@mpfootnotetext} {@mpfootnotetext}
+}%
+\AtEndOfPackageFile{setspace}{
+  \cs_gset_eq:cc {@footnotetext} {@@_saved_setsave_@footnotetext}
+  \cs_gset_eq:cc {@mpfootnotetext} {@@_saved_setsave_@mpfootnotetext}
+}
+\ExplSyntaxOff
+%    \begin{macrocode}
 %    \end{macrocode}
 %
 % \section{Other miscellaneous commands}
