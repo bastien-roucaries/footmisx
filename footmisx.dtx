@@ -496,6 +496,17 @@ Copyright
 %   writing.
 % \end{description}
 %
+% Know incompatibilities are:
+% \begin{description}
+% \item[\normalfont\textsf{footnpag}] Replace with option \texttt{perpage}. You could also
+% use package \textsf{perpage} and \tn{MakePerPage{footnote}} command.
+% \item[\normalfont\textsf{pagefoots}] Replace with option \texttt{perpage}. You could also
+% use package \textsf{perpage} and \tn{MakePerPage{footnote}} command.
+% \item[\normalfont\textsf{pfnote}] Replace with option \texttt{perpage}. You could also
+% use package \textsf{perpage} and \tn{MakePerPage{footnote}} command.
+% \item[\normalfont\textsf{fnpara}] Replace with option \texttt{para}. 
+% \item[\normalfont\textsf{fnpos}] Replace with option \texttt{bottom}.
+% \end{description}
 % \StopEventually{}
 %
 % \section{Code: Preliminaries}
@@ -528,9 +539,12 @@ Copyright
 \msg_new:nnn {footmisx} {too old}
    {The~package~#1~is~too~old~and~thus~not~supported.\\
     Please~install~a~newer~version~(at~least~version~#2)}
+\msg_new:nnn {footmisx} {incompatible}
+   {The~package~#1~is~incompatible~with~footmisx.\\
+    Use~the~following~workarround~#2}
 %    \end{macrocode}
 %
-% \subsection{Check package version}
+% \subsection{Check package loaded and package version}
 %
 % \subsubsection{Helpers}
 %
@@ -553,6 +567,30 @@ Copyright
 }
 %    \end{macrocode}
 % \end{function}
+% Protect against incompatible package.
+% \begin{function}{\@@_error_if_incompatible:NN}
+%   \begin{syntax}
+%     \cs{@@_error_if_incompatible:NN} \Arg{package} \Arg{version}
+%   \end{syntax}
+% Check minimal version and raise an error in case of too old.
+%    \begin{macrocode}
+\cs_new_nopar:Nn \@@_error_if_incompatible:NN {
+  \@ifpackageloaded{#1}{
+    \msg_error:nnnn{footmisx}{incompatible}{#1}{#2}
+  }{}
+  \AtBeginOfPackageFile{#1}{
+    \msg_error:nnnn{footmisx}{incompatible}{#1}{#2}
+  }
+  \AtBeginDocument{
+    \ExplSyntaxOn
+    \@ifpackageloaded{#1}{
+      \msg_error:nnnn{footmisx}{incompatible}{#1}{#2}
+    }{}
+    \ExplSyntaxOff
+  }
+}
+%    \end{macrocode}
+% \end{function}
 %
 % \subsubsection{Checks}
 %
@@ -560,6 +598,11 @@ Copyright
 %    \begin{macrocode}
 \@@_error_if_too_old:NN{hyperref}{2016/06/24}
 \@@_error_if_too_old:NN{setspace}{2011/12/19}
+\@@_error_if_incompatible:NN{footnpag}{Use footmisx with option perpage}
+\@@_error_if_incompatible:NN{pagefoots}{Use footmisx with option perpage}
+\@@_error_if_incompatible:NN{pfnotes}{Use footmisx with option perpage}
+\@@_error_if_incompatible:NN{fnpara}{Use footmisx with option para}
+\@@_error_if_incompatible:NN{fnpos}{Use footmisx with option bottom}
 %    \end{macrocode}
 %
 % \subsection{Check definition}
@@ -1975,13 +2018,16 @@ Copyright
 %    \begin{macrocode}
 \ExplSyntaxOn
 \cs_new_nopar:Nn \@@_noHref:n {\ref{#1}}
-\ExplSyntaxOff
 %    \end{macrocode}
 % \end{function}
 % We run this code now (update) and eventually at end of hyperref file
+% \begin{function}{\@@_define_@@_noHref:}
+% \begin{syntax}
+%   \cs{@@_define_@@_noHref:}
+% \end{syntax}
+% Define \cs{@@_noHref:n} to something sensible.
 %    \begin{macrocode}
-\ExplSyntaxOn
-\@@_AtEndOfPackageFile_and_now:NN {hyperref}{
+\tl_const:Nn \@@_define_@@_noHref: {
   \@ifpackageloaded{hyperref}{
     \cs_gset:Nn \@@_noHref:n {\ref*{#1}}
   }
@@ -1989,24 +2035,49 @@ Copyright
     \cs_gset:Nn \@@_noHref:n {\ref{#1}}
   }
 }
-\ExplSyntaxOff
+%    \end{macrocode}
+% \end{function}
+% Now redefine this function at end of hyperref thus allowing
+% independant order of loading between \textsf{hyperref} and
+% \textsf{footmisx}
+%    \begin{macrocode}
+\@@_AtEndOfPackageFile_and_now:NN {hyperref}{
+  \@@_define_@@_noHref: {}
+}
 %    \end{macrocode}
 %
 % \subsection{\cs{@makefnmark}}
 %
 % Update \tn{@makefnmark} in order to accept an optional argument,
 % the counter to update and a stared version in order to not use hyperlink.
-%
-% First we define the hyperref hook
+% \begin{function}{\@@_makeHfnmark:n}
+%   \begin{syntax}
+%   \cs{@@_makeHfnmark:n} \Arg{marktoset}
+%   \end{syntax}
+%    Typeset a footnote mark. Will be overriden by a hook later.
+%    \begin{macrocode}
+\cs_new_nopar:Nn \@@_makeHfnmark:n {\textfootmark{#1}}
+%    \end{macrocode}
+% \end{function}
+% We define the hyperref hook run when hyperref is not loaded
+% \begin{function}{\@@_noref_@makeHfnmark}
+%   \begin{syntax}
+%     \cs{@@_noref_@makeHfnmark} \Arg{marktoset}
+%   \end{syntax}
+%   Set a mark anchor in case of hyperref
+%    \begin{macrocode}
+\cs_new_eq:NN \@@_noref_@makeHfnmark:n \@@_makeHfnmark:n
+%    \end{macrocode}
+% \end{function}
+% We define the hyperref hook
 % \begin{function}{\@@_hyperref_@makeHfnmark:n}
 %   \begin{syntax}
 %     \cs{@@_hyperref_@makeHfnmark:n} \Arg{marktoset}
 %   \end{syntax}
 %   Set a mark anchor in case of hyperref
 %    \begin{macrocode}
-\ExplSyntaxOn
 \cs_new_nopar:Nn \@@_hyperref_@makeHfnmark:n {
-    \textfootmark{
+    \@@_noref_@makeHfnmark:n {
     \stepcounter{Hfootnote}%
     \global\let\Hy@saved@currentHref\@currentHref
     \hyper@makecurrent{Hfootnote}%
@@ -2017,27 +2088,16 @@ Copyright
     \hyper@linkend
     }
 }
-\ExplSyntaxOff
-%    \end{macrocode}
-% \end{function}
-% We define the hyperref hook run when hyperref is not loaded
-% \begin{function}{\@@_noref_@makeHfnmark}
-%   \begin{syntax}
-%     \cs{@@_noref_@makeHfnmark} \Arg{marktoset}
-%   \end{syntax}
-%   Set a mark anchor in case of hyperref
-%    \begin{macrocode}
-\ExplSyntaxOn
-\cs_new_nopar:Nn \@@_noref_@makeHfnmark:n {
-    \textfootmark{#1}
-}
-\ExplSyntaxOff
 %    \end{macrocode}
 % \end{function}
 % We run this hook now, and at end of hyperref package
+% \begin{function}{\@@_define_@@_@makeHfnmark:}
+% \begin{syntax}
+%   \cs{@@_define_@@_@makeHfnmark:}
+% \end{syntax}
+% Define \cs{@@_@makeHfnmark} to something sensible.
 %    \begin{macrocode}
-\ExplSyntaxOn
-\@@_AtEndOfPackageFile_and_now:NN {hyperref} {
+\tl_const:Nn \@@_define_@@_@makeHfnmark: {
   \@ifpackageloaded{hyperref}{
     \ifHy@hyperfootnotes
        \cs_gset_eq:NN \@@_makeHfnmark:n \@@_hyperref_@makeHfnmark:n
@@ -2049,9 +2109,15 @@ Copyright
     \cs_gset_eq:NN \@@_makeHfnmark:n \@@_noref_@makeHfnmark:n
   }
 }
-\ExplSyntaxOff
 %    \end{macrocode}
-% Define a helper function for \cs{\@@_makeHfnmark:n}
+% \end{function}
+% Now run the hook
+%    \begin{macrocode}
+\@@_AtEndOfPackageFile_and_now:NN {hyperref} {
+  \@@_define_@@_@makeHfnmark: {}
+}
+%    \end{macrocode}
+% Define a helper function for \cs{\@@_makefnmark:n}
 %    \begin{macrocode}
 \ExplSyntaxOn
 \cs_new_nopar:Nn \@@_@makeHfnmark_stared:Nn {
@@ -2090,13 +2156,19 @@ Copyright
 \DeclareDocumentCommand{\@@_@footnotemark}{sO{\@thefnmark}}{
    \@@_@footnotemark_stared:Nn{#1}{#2}
 }
+\tl_const:Nn \@@_define_@footnotemark: {
+   \cs_gset_eq:NN \@footnotemark \@@_@footnotemark
+}
 \@@_AtEndOfPackageFile_and_now:NN {hyperref} {
-  \cs_gset_eq:NN \@footnotemark \@@_@footnotemark
+  \@@_define_@footnotemark: {}
 }
 \ExplSyntaxOff
 %    \end{macrocode}
 %
-% \subsection{\cs{@footnotetext}}
+% \subsection{\tn{footnotemark}}
+
+%
+% \subsection{\tn{@footnotetext}}
 %
 % \begin{macro}{\ifFN@baselinestretch}
 % \begin{macro}{\FN@singlespace}

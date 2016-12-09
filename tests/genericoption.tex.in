@@ -6,16 +6,19 @@
 \usepackage[backref]{hyperref}
 
 \ifcurrfile{\currfilename}{default.tex}{
-    \usepackage{footmisx}
+    \usepackage[stable]{footmisx}
 }{
     \typeout{\jobname}
-    \usepackage[\jobname]{footmisx}
+    \usepackage[\jobname,stable]{footmisx}
 }
 
 \usepackage[showcrop,showframe]{geometry}
 \usepackage{blindtext}
 
 \begin{document}
+
+\tableofcontents
+
 \begin{figure}[b]
 Test of figure
 \caption{figure}
@@ -51,5 +54,9 @@ A minipage footnote mark\mpfootnotemark for 4
 
 \newpage
 \blindtext\footnotemark \footnotetext{A manual footnote}
+
+\newpage
+
+\section{A section\footnote{special thanks}}
 
 \end{document}
