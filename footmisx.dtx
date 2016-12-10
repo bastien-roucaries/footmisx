@@ -2046,38 +2046,37 @@ Copyright
 }
 %    \end{macrocode}
 %
-% \subsection{\cs{@makefnmark}}
+% \subsection{\cs{@@_makefnmarklink}}
 %
-% Update \tn{@makefnmark} in order to accept an optional argument,
-% the counter to update and a stared version in order to not use hyperlink.
-% \begin{function}{\@@_makeHfnmark:n}
+% This function create a footnote mark including an a link if hyperref is loaded.
+% \begin{function}{\@@_@makefnmarklink:n}
 %   \begin{syntax}
-%   \cs{@@_makeHfnmark:n} \Arg{marktoset}
+%   \cs{@@_@makefnmarklink:n} \Arg{marktoset}
 %   \end{syntax}
-%    Typeset a footnote mark. Will be overriden by a hook later.
+%    Typeset a footnote mark including link. Will be overriden by a hook later.
 %    \begin{macrocode}
-\cs_new_nopar:Nn \@@_makeHfnmark:n {\textfootmark{#1}}
+\cs_new_nopar:Nn \@@_@makefnmarklink:n {\textfootmark{#1}}
 %    \end{macrocode}
 % \end{function}
 % We define the hyperref hook run when hyperref is not loaded
-% \begin{function}{\@@_noref_@makeHfnmark}
+% \begin{function}{\@@_noref_@makefnmarklink}
 %   \begin{syntax}
-%     \cs{@@_noref_@makeHfnmark} \Arg{marktoset}
+%     \cs{@@_noref_@makefnmarklink} \Arg{marktoset}
 %   \end{syntax}
 %   Set a mark anchor in case of hyperref
 %    \begin{macrocode}
-\cs_new_eq:NN \@@_noref_@makeHfnmark:n \@@_makeHfnmark:n
+\cs_new_eq:NN \@@_noref_@makefnmarklink:n \@@_@makefnmarklink:n
 %    \end{macrocode}
 % \end{function}
 % We define the hyperref hook
-% \begin{function}{\@@_hyperref_@makeHfnmark:n}
+% \begin{function}{\@@_hyperref_@makefnmarklink:n}
 %   \begin{syntax}
-%     \cs{@@_hyperref_@makeHfnmark:n} \Arg{marktoset}
+%     \cs{@@_hyperref_@makefnmarklink:n} \Arg{marktoset}
 %   \end{syntax}
 %   Set a mark anchor in case of hyperref
 %    \begin{macrocode}
-\cs_new_nopar:Nn \@@_hyperref_@makeHfnmark:n {
-    \@@_noref_@makeHfnmark:n {
+\cs_new_nopar:Nn \@@_hyperref_@makefnmarklink:n {
+    \@@_noref_@makefnmarklink:n {
     \stepcounter{Hfootnote}%
     \global\let\Hy@saved@currentHref\@currentHref
     \hyper@makecurrent{Hfootnote}%
@@ -2091,22 +2090,22 @@ Copyright
 %    \end{macrocode}
 % \end{function}
 % We run this hook now, and at end of hyperref package
-% \begin{function}{\@@_define_@@_@makeHfnmark:}
+% \begin{function}{\@@_define_@@_@makefnmarklink:}
 % \begin{syntax}
-%   \cs{@@_define_@@_@makeHfnmark:}
+%   \cs{@@_define_@@_@makefnmarklink:}
 % \end{syntax}
-% Define \cs{@@_@makeHfnmark} to something sensible.
+% Define \cs{@@_@makefnmarklink} to something sensible.
 %    \begin{macrocode}
-\tl_const:Nn \@@_define_@@_@makeHfnmark: {
+\tl_const:Nn \@@_define_@@_@makefnmarklink: {
   \@ifpackageloaded{hyperref}{
     \ifHy@hyperfootnotes
-       \cs_gset_eq:NN \@@_makeHfnmark:n \@@_hyperref_@makeHfnmark:n
+       \cs_gset_eq:NN \@@_@makefnmarklink:n \@@_hyperref_@makefnmarklink:n
     \else
-       \cs_gset_eq:NN \@@_makeHfnmark:n \@@_noref_@makeHfnmark:n
+       \cs_gset_eq:NN \@@_@makefnmarklink:n \@@_noref_@makefnmarklink:n
     \fi
   }
   {
-    \cs_gset_eq:NN \@@_makeHfnmark:n \@@_noref_@makeHfnmark:n
+    \cs_gset_eq:NN \@@_@makefnmarklink:n \@@_noref_@makefnmarklink:n
   }
 }
 %    \end{macrocode}
@@ -2114,26 +2113,61 @@ Copyright
 % Now run the hook
 %    \begin{macrocode}
 \@@_AtEndOfPackageFile_and_now:NN {hyperref} {
-  \@@_define_@@_@makeHfnmark: {}
+  \@@_define_@@_@makefnmarklink: {}
 }
 %    \end{macrocode}
-% Define a helper function for \cs{\@@_makefnmark:n}
+% Define now a \textsf{xparse} helper:
+% \begin{function}{\@@_@makefnmarklink_stared:Nn}
+%  \begin{syntax}
+%    \cs{@@_@makefnmarklink_stared:Nn} \marg{value or \texttt{-novalue}-} \marg{mark}
+%  \end{syntax}
+% If first argument is defined call no hyperlink version, else call hyperlink
+% version.
 %    \begin{macrocode}
-\ExplSyntaxOn
-\cs_new_nopar:Nn \@@_@makeHfnmark_stared:Nn {
-  \IfBooleanTF{#1}{\@@_noref_@makeHfnmark:n{#2}}{\@@_makeHfnmark:n{#2}}
+\cs_new_nopar:Nn \@@_@makefnmarklink_stared:Nn {
+  \IfBooleanTF{#1}
+    {\@@_noref_@makefnmarklink:n{#2}}
+    {\@@_@makefnmarklink:n{#2}}
 }
-\ExplSyntaxOff
 %    \end{macrocode}
-% Now we redefine \tn{@makefnmark}
+% \end{function}
+% Now define a the xparse handler
+% \begin{function}{\@@_makefnmarklink}
+% \begin{syntax}
+% \cs{\@@_makefnmarklink}|[*]|\oarg{mark=\tn{@thefnmark}}
+% \end{syntax}
 %    \begin{macrocode}
-\ExplSyntaxOn
-\DeclareDocumentCommand{\@@_@makefnmark}{sO{\@thefnmark}}{
-  \@@_@makeHfnmark_stared:Nn{#1}{#2}
+\DeclareDocumentCommand{\@@_makefnmarklink}
+  {sO{\@thefnmark}}
+  {\@@_@makefnmarklink_stared:Nn{#1}{#2}
 }
-\cs_set_eq:NN \@makefnmark \@@_@makefnmark
-\ExplSyntaxOff
 %    \end{macrocode}
+% \end{function}
+ 
+% \subsection{\tn{@makefnmark}}
+%
+% \tn{makefnmark} is unfixable, it is used both for a link and a target. We try our best
+% and follow hyperref. By default \tn{@makefnmark} is a link (using the same approach 
+% than \textsl{hyperref}).
+%
+% We begin by saving the original \tn{@makefnmark}.
+% \begin{function}{\@@_orig_@makefnmark}
+%  \begin{syntax}
+%    \cs{@@_orig_@makefnmark}
+%  \end{syntax}
+%    \begin{macrocode}
+\cs_set_eq:NN \@@_orig_@makefnmark \@makefnmark
+%    \end{macrocode}
+% \end{function}
+% Now we redefine \tn{@makefnmark} in compatible fashion
+% \begin{function}{\@makefnmark}
+% \begin{syntax}
+% \tn{\@@_makefnmarklink}|[*]|\oarg{mark=\tn{@thefnmark}}
+% \end{syntax}
+%    \begin{macrocode}
+\cs_set_eq:NN \@makefnmark \@@_makefnmarklink
+%    \end{macrocode}
+% \end{function}
 %
 % \subsection{\tn{@footnotemark}}
 %
@@ -2148,7 +2182,7 @@ Copyright
     \FN@mf@check
     \nobreak
   \fi
-  \@@_@makeHfnmark_stared:Nn{#1}{#2}
+  \@@_@makefnmarklink_stared:Nn{#1}{#2}
   \FN@mf@prepare
   \ifhmode\spacefactor\@x@sf\fi
   \relax
@@ -2169,6 +2203,8 @@ Copyright
 
 %
 % \subsection{\tn{@footnotetext}}
+%
+% \subsubsection{\textsl{setspace} package}
 %
 % \begin{macro}{\ifFN@baselinestretch}
 % \begin{macro}{\FN@singlespace}
@@ -2202,6 +2238,8 @@ Copyright
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
+%
+% \subsubsection{Command}
 %
 % There's substantial patching to be done if we're doing paragraph
 % footnotes:
@@ -2363,18 +2401,6 @@ Copyright
 \ExplSyntaxOff
 %    \end{macrocode}
 % \end{macro}
-%
-% Now redefine old @makefnmark to use this function:
-% \begin{macro}{\@makefnmark}
-% Syntax \cs{@makefnmark}\oarg{text}
-%    \begin{macrocode}
-\ExplSyntaxOn
-\RenewDocumentCommand{\@makefnmark}{O{\@thefnmark}}
-    {\textfootmark{#1}}
-\ExplSyntaxOff
-%    \end{macrocode}
-% \end{macro}
-%
 %
 % \subsection{Footnote references}
 %
