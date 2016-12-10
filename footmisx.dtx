@@ -550,13 +550,13 @@ Copyright
 % \subsubsection{Helpers}
 %
 % Protect against too old package by checking version if package is loaded.
-% \begin{function}{\@@_error_if_too_old:NN}
+% \begin{function}{\__@@_error_if_too_old:NN}
 %   \begin{syntax}
-%     \cs{@@_error_if_too_old:NN} \Arg{package} \Arg{version}
+%     \cs{__@@_error_if_too_old:NN} \Arg{package} \Arg{version}
 %   \end{syntax}
 % Check minimal version and raise an error in case of too old.
 %    \begin{macrocode}
-\cs_new_nopar:Nn \@@_error_if_too_old:NN {
+\cs_new_nopar:Nn \__@@_error_if_too_old:NN {
   \AtBeginDocument{
     \ExplSyntaxOn
     \@ifpackageloaded{#1}{
@@ -569,13 +569,13 @@ Copyright
 %    \end{macrocode}
 % \end{function}
 % Protect against incompatible package.
-% \begin{function}{\@@_error_if_incompatible:NN}
+% \begin{function}{\__@@_error_if_incompatible:NN}
 %   \begin{syntax}
-%     \cs{@@_error_if_incompatible:NN} \Arg{package} \Arg{version}
+%     \cs{__@@_error_if_incompatible:NN} \Arg{package} \Arg{version}
 %   \end{syntax}
 % Check minimal version and raise an error in case of too old.
 %    \begin{macrocode}
-\cs_new_nopar:Nn \@@_error_if_incompatible:NN {
+\cs_new_nopar:Nn \__@@_error_if_incompatible:NN {
   \@ifpackageloaded{#1}{
     \msg_error:nnnn{footmisx}{incompatible}{#1}{#2}
   }{}
@@ -597,13 +597,13 @@ Copyright
 %
 % Check now some minimal supported version
 %    \begin{macrocode}
-\@@_error_if_too_old:NN{hyperref}{2016/06/24}
-\@@_error_if_too_old:NN{setspace}{2011/12/19}
-\@@_error_if_incompatible:NN{footnpag}{Use footmisx with option perpage}
-\@@_error_if_incompatible:NN{pagefoots}{Use footmisx with option perpage}
-\@@_error_if_incompatible:NN{pfnotes}{Use footmisx with option perpage}
-\@@_error_if_incompatible:NN{fnpara}{Use footmisx with option para}
-\@@_error_if_incompatible:NN{fnpos}{Use footmisx with option bottom}
+\__@@_error_if_too_old:NN{hyperref}{2016/06/24}
+\__@@_error_if_too_old:NN{setspace}{2011/12/19}
+\__@@_error_if_incompatible:NN{footnpag}{Use footmisx with option perpage}
+\__@@_error_if_incompatible:NN{pagefoots}{Use footmisx with option perpage}
+\__@@_error_if_incompatible:NN{pfnotes}{Use footmisx with option perpage}
+\__@@_error_if_incompatible:NN{fnpara}{Use footmisx with option para}
+\__@@_error_if_incompatible:NN{fnpos}{Use footmisx with option bottom}
 %    \end{macrocode}
 %
 % \subsection{Check definition}
@@ -611,16 +611,16 @@ Copyright
 % \subsubsection{Helper}
 %
 % We check definition of some overwriten function. Protect against too recent package.
-% \begin{function}{\@@_error_if_neq:NNc}
+% \begin{function}{\__@@msg_if_neq:NNc}
 %   \begin{syntax}
-%     \cs{@@_error_if_neq:NNc} \Arg{sequence_1} \Arg{sequence_2} \marg{csname}
+%     \cs{__@@msg_if_neq:NNc} \Arg{sequence_1} \Arg{sequence_2} \marg{csname}
 %   \end{syntax}
 %   Compare \Arg{sequence_1} and \Arg{sequence_2}. Call \marg{csname} if not
 %   equal in \cs{cs_if_eq:NNTF} sense.
 %
 %   \marg{csname} should be a \cs{foo:nnxxx} function like \cs[module=l3basics]{msg_critical:nnxxx}
 %    \begin{macrocode}
-\cs_new:Npn \@@_msg_if_neq:NNc #1#2#3 {
+\cs_new:Npn \__@@_msg_if_neq:NNc #1#2#3 {
   \cs_if_eq:NNTF {#1} {#2} {}
                  {\use:c{#3}
                    {footmisx}
@@ -632,51 +632,51 @@ Copyright
 }
 %    \end{macrocode}
 % \end{function}
-% \begin{function}{\@@_fatal_if_neq:NN}
+% \begin{function}{\__@@_fatal_if_neq:NN}
 %   \begin{syntax}
-%     \cs{@@_fatal_if_neq:NN} \Arg{sequence_1} \Arg{sequence_2}
+%     \cs{__@@_fatal_if_neq:NN} \Arg{sequence_1} \Arg{sequence_2}
 %   \end{syntax}
 %   Compare \Arg{sequence_1} and \Arg{sequence_2}. Call \cs[module=l3basics]{msg_fatal:nnxxx} if not
 %   equal in \cs{cs_if_eq:NNTF} sense.
 %    \begin{macrocode}
-\cs_new:Nn \@@_fatal_if_neq:NN {
-  \@@_msg_if_neq:NNc {#1} {#2} {msg_fatal:nnxxx}
+\cs_new:Nn \__@@_fatal_if_neq:NN {
+  \__@@_msg_if_neq:NNc {#1} {#2} {msg_fatal:nnxxx}
 }
 %    \end{macrocode}
 % \end{function}
-% \begin{function}{\@@_critical_if_neq:NN}
+% \begin{function}{\__@@_critical_if_neq:NN}
 %   \begin{syntax}
-%     \cs{@@_critical_if_neq:NN} \Arg{sequence_1} \Arg{sequence_2}
+%     \cs{__@@_critical_if_neq:NN} \Arg{sequence_1} \Arg{sequence_2}
 %   \end{syntax}
 %   Compare \Arg{sequence_1} and \Arg{sequence_2}. Call \cs[module=l3basics]{msg_critical:nnxxx} if not
 %   equal in \cs{cs_if_eq:NNTF} sense.
 %    \begin{macrocode}
-\cs_new:Nn \@@_critical_if_neq:NN {
-  \@@_msg_if_neq:NNc {#1} {#2} {msg_critical:nnxxx}
+\cs_new:Nn \__@@_critical_if_neq:NN {
+  \__@@_msg_if_neq:NNc {#1} {#2} {msg_critical:nnxxx}
 }
 %    \end{macrocode}
 % \end{function}
-% \begin{function}{\@@_error_if_neq:NN}
+% \begin{function}{\__@@error_if_neq:NN}
 %   \begin{syntax}
-%     \cs{@@_error_if_neq:NN} \Arg{sequence_1} \Arg{sequence_2}
+%     \cs{__@@error_if_neq:NN} \Arg{sequence_1} \Arg{sequence_2}
 %   \end{syntax}
 %   Compare \Arg{sequence_1} and \Arg{sequence_2}. Call \cs[module=l3basics]{msg_error:nnxxx} if not
 %   equal in \cs{cs_if_eq:NNTF} sense.
 %    \begin{macrocode}
-\cs_new:Nn \@@_error_if_neq:NN {
-  \@@_msg_if_neq:NNc {#1} {#2} {msg_error:nnxxx}
+\cs_new:Nn \__@@error_if_neq:NN {
+  \__@@_msg_if_neq:NNc {#1} {#2} {msg_error:nnxxx}
 }
 %    \end{macrocode}
 % \end{function}
-% \begin{function}{\@@_warning_if_neq:NN}
+% \begin{function}{\__@@_warning_if_neq:NN}
 %   \begin{syntax}
-%     \cs{@@_warning_if_neq:NN} \Arg{sequence_1} \Arg{sequence_2}
+%     \cs{__@@_warning_if_neq:NN} \Arg{sequence_1} \Arg{sequence_2}
 %   \end{syntax}
 %   Compare \Arg{sequence_1} and \Arg{sequence_2}. Call \cs[module=l3basics]{msg_warning:nnxxx} if not
 %   equal in \cs{cs_if_eq:NNTF} sense.
 %    \begin{macrocode}
-\cs_new:Nn \@@_warning_if_neq:NN {
-  \@@_msg_if_neq:NNc {#1} {#2} {msg_warning:nnxxx}
+\cs_new:Nn \__@@_warning_if_neq:NN {
+  \__@@_msg_if_neq:NNc {#1} {#2} {msg_warning:nnxxx}
 }
 %    \end{macrocode}
 % \end{function}
@@ -687,20 +687,20 @@ Copyright
 %   Compare \Arg{sequence_1} and \Arg{sequence_2}. Call \cs[module=l3basics]{msg_note:nnxxx} if not
 %   equal in \cs{cs_if_eq:NNTF} sense.
 %    \begin{macrocode}
-\cs_new:Nn \@@_note_if_neq:NN {
-  \@@_msg_if_neq:NNc {#1} {#2} {msg_note:nnxxx}
+\cs_new:Nn \__@@_note_if_neq:NN {
+  \__@@_msg_if_neq:NNc {#1} {#2} {msg_note:nnxxx}
 }
 %    \end{macrocode}
 % \end{function}
-% \begin{function}{\@@_log_if_neq:NN}
+% \begin{function}{\__@@_log_if_neq:NN}
 %   \begin{syntax}
-%     \cs{@@_log_if_neq:NN} \Arg{sequence_1} \Arg{sequence_2}
+%     \cs{__@@_log_if_neq:NN} \Arg{sequence_1} \Arg{sequence_2}
 %   \end{syntax}
 %   Compare \Arg{sequence_1} and \Arg{sequence_2}. Call \cs[module=l3basics]{msg_log:nnxxx} if not
 %   equal in \cs{cs_if_eq:NNTF} sense.
 %    \begin{macrocode}
-\cs_new:Nn \@@_log_if_neq:NN {
-  \@@_msg_if_neq:NNc {#1} {#2} {msg_log:nnxxx}
+\cs_new:Nn \__@@_log_if_neq:NN {
+  \__@@_msg_if_neq:NNc {#1} {#2} {msg_log:nnxxx}
 }
 %    \end{macrocode}
 % \end{function}
@@ -712,8 +712,8 @@ Copyright
 %
 %     \begin{macrocode}
 \group_begin:
-  \def\@@_copy_@makefnmark{\hbox{\@textsuperscript{\normalfont\@thefnmark}}}
-  \@@_warning_if_neq:NN {\@makefnmark} {\@@_copy_@makefnmark}
+  \def\__@@_copy_@makefnmark{\hbox{\@textsuperscript{\normalfont\@thefnmark}}}
+  \__@@_warning_if_neq:NN {\@makefnmark} {\__@@_copy_@makefnmark}
 \group_end:
 %    \end{macrocode}
 %
@@ -724,7 +724,7 @@ Copyright
 \@ifpackageloaded{hyperref}
 %%hyperef case
 {
-  \def\@@_copy_@footnotemark{%
+  \def\__@@_copy_@footnotemark{%
     \leavevmode
     \ifhmode\edef\@x@sf{\the\spacefactor}\nobreak\fi
     \stepcounter{Hfootnote}%
@@ -741,7 +741,7 @@ Copyright
 }
 %% latex case
 {
-  \def\@@_copy_@footnotemark{
+  \def\__@@_copy_@footnotemark{
     \leavevmode
     \ifhmode\edef\@x@sf{\the\spacefactor}\nobreak\fi
     \@makefnmark
@@ -749,14 +749,14 @@ Copyright
     \relax
   }
 }
-\@@_error_if_neq:NN {\@footnotemark} {\@@_copy_@footnotemark}
+\__@@error_if_neq:NN {\@footnotemark} {\__@@_copy_@footnotemark}
 \group_end:
 %    \end{macrocode}
 % Now we check if \tn{footnotemark} has been modified. Do it between group in
 % order to not pollute namespace.
 %    \begin{macrocode}
 \group_begin:
-\def\@@_copy_footnotemark{\@ifnextchar [%]
+\def\__@@_copy_footnotemark{\@ifnextchar [%]
     \@xfootnotemark
     {%
       \stepcounter{footnote}%
@@ -764,19 +764,19 @@ Copyright
       \@footnotemark
     }%
 }
-\@@_error_if_neq:NN {\footnotemark} {\@@_copy_footnotemark}
+\__@@error_if_neq:NN {\footnotemark} {\__@@_copy_footnotemark}
 \group_end:
 %    \end{macrocode}
 %
 % \subsection{Load hook now and at end of some package}
 %
-% \begin{function}{\@@_error_if_neq:NN}
+% \begin{function}{\__@@_AtEndOfPackageFile_and_now:NN}
 %   \begin{syntax}
-%     \cs{@@_AtEndOfPackageFile_and_now:NN} \Arg{package} \Arg{code}
+%     \cs{__@@_AtEndOfPackageFile_and_now:NN} \Arg{package} \Arg{code}
 %   \end{syntax}
 %   Run \Arg{code} now and at end of package \Arg{package}. 
 %     \begin{macrocode}
-\cs_new:Npn \@@_AtEndOfPackageFile_and_now:NN #1#2 {
+\cs_new:Npn \__@@_AtEndOfPackageFile_and_now:NN #1#2 {
 #2
 \AtEndOfPackageFile{#1}{#2}
 }
@@ -2042,7 +2042,7 @@ Copyright
 % independant order of loading between \textsf{hyperref} and
 % \textsf{footmisx}
 %    \begin{macrocode}
-\@@_AtEndOfPackageFile_and_now:NN {hyperref}{
+\__@@_AtEndOfPackageFile_and_now:NN {hyperref}{
   \@@_define_@@_noHref: {}
 }
 %    \end{macrocode}
@@ -2113,7 +2113,7 @@ Copyright
 % \end{function}
 % Now run the hook
 %    \begin{macrocode}
-\@@_AtEndOfPackageFile_and_now:NN {hyperref} {
+\__@@_AtEndOfPackageFile_and_now:NN {hyperref} {
   \@@_define_@@_@makefnmarklink: {}
 }
 %    \end{macrocode}
@@ -2194,7 +2194,7 @@ Copyright
 \tl_const:Nn \@@_define_@footnotemark: {
    \cs_gset_eq:NN \@footnotemark \@@_@footnotemark
 }
-\@@_AtEndOfPackageFile_and_now:NN {hyperref} {
+\__@@_AtEndOfPackageFile_and_now:NN {hyperref} {
   \@@_define_@footnotemark: {}
 }
 \ExplSyntaxOff
@@ -2217,7 +2217,7 @@ Copyright
 %    \begin{macrocode}
 \ExplSyntaxOn
 \newif\ifFN@setspace
-\@@_AtEndOfPackageFile_and_now:NN {setspace} {
+\__@@_AtEndOfPackageFile_and_now:NN {setspace} {
 \@ifpackageloaded{setspace}{%
   \FN@setspacetrue
   \@ifclassloaded{memoir}{%
@@ -2361,7 +2361,7 @@ Copyright
 % by using our code as \textsf{hypperef} hook.
 %    \begin{macrocode}
 \ExplSyntaxOn
-\@@_AtEndOfPackageFile_and_now:NN {hyperref} {
+\__@@_AtEndOfPackageFile_and_now:NN {hyperref} {
   \@ifpackageloaded{hyperref}
   {
     \cs_gset_eq:cc {H @ @ footnotetext} {@footmisxnotetext}
@@ -2435,7 +2435,7 @@ Copyright
 % We run hook now and at end of hyperref
 %    \begin{macrocode}
 \ExplSyntaxOn
-\@@_AtEndOfPackageFile_and_now:NN {hyperref} {\cs_gset_eq:NN \footref \@@_footref}
+\__@@_AtEndOfPackageFile_and_now:NN {hyperref} {\cs_gset_eq:NN \footref \@@_footref}
 \ExplSyntaxOff
 %    \end{macrocode}
 %
