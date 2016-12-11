@@ -2007,7 +2007,7 @@ Copyright
 %
 % Here we define some tools functions.
 %
-% \subsubsection{\cs{@@_noHref:n}}
+% \subsubsection{\cs{__@@_noHref:n}}
 %
 % First we define a pointer
 % to \tn{ref*} if \texttt{hyperref} is loaded or \tn{ref} if not
@@ -2172,119 +2172,168 @@ Copyright
 %
 % \subsection{\tn{@footnotemark}}
 %
-% Change \tn{@footnotemark} to allow a star version (no hyperref) and an optional ref.
-%
+% Change \tn{@footnotemark} to allow a star version (no hyperref) and an optional number.
+% \begin{function}{\@@_@footnotemark_stared:Nn}
+%  \begin{syntax}
+%    \cs{@@_@footnotemark_stared:Nn} \marg{value or \texttt{-novalue}-} \marg{mark}
+%  \end{syntax}
+% If first argument is defined call no hyperlink version, else call hyperlink
+% version.
 %    \begin{macrocode}
-\ExplSyntaxOn
 \cs_new_nopar:Nn \@@_@footnotemark_stared:Nn {
   \leavevmode
-  \ifhmode
+  \mode_if_horizontal:TF
+  {
     \edef\@x@sf{\the\spacefactor}
     \FN@mf@check
     \nobreak
-  \fi
+  }
+  {}
   \@@_@makefnmarklink_stared:Nn{#1}{#2}
   \FN@mf@prepare
-  \ifhmode\spacefactor\@x@sf\fi
+  \mode_if_horizontal:TF
+  {\spacefactor\@x@sf}
+  {}
   \relax
 }
+%    \end{macrocode}
+% \end{function}
+% \begin{function}{\@@_@footnotemark}
+% \begin{syntax}
+% \cs{@@_@footnotemark}|[*]|\oarg{mark=\tn{@thefnmark}}
+% \end{syntax}
+% This a package specific compatible \tn{@footnotemark}.
+%    \begin{macrocode}
 \DeclareDocumentCommand{\@@_@footnotemark}{sO{\@thefnmark}}{
    \@@_@footnotemark_stared:Nn{#1}{#2}
 }
+%    \end{macrocode}
+% \end{function}
+% \begin{function}{\@@_define_@@_@makefnmarklink:}
+% \begin{syntax}
+%   \cs{@@_define_@@_@makefnmarklink:}
+% \end{syntax}
+% Define \tn{@footnotemark} to \cs{@@_@footnotemark}.
+%    \begin{macrocode}
 \tl_const:Nn \@@_define_@footnotemark: {
    \cs_gset_eq:NN \@footnotemark \@@_@footnotemark
 }
+%    \end{macrocode}
+% \end{function}
+% \begin{function}{\@footnotemark}
+% \begin{syntax}
+% \cs{@footnotemark}|[*]|\oarg{mark=\tn{@thefnmark}}
+% \end{syntax}
+% This \tn{@footnotemark} extended to accept star and an optionnal arg.
+%    \begin{macrocode}
 \__@@_AtEndOfPackageFile_and_now:NN {hyperref} {
   \@@_define_@footnotemark: {}
 }
-\ExplSyntaxOff
 %    \end{macrocode}
+% \end{function}
 %
 % \subsection{\tn{footnotemark}}
-
+%
 %
 % \subsection{\tn{@footnotetext}}
 %
+% \subsubsection{Hooks}
+%
+% \begin{variable}{\g_@@_footnotetextbeginhook_tl}
+% This is the hook run at begining of a footnote. Used for instance
+% by \textsf{setspace} pacakge to reset spacing.
+%    \begin{macrocode}
+\tl_new:N \g_@@_footnotetextbeginhook_tl 
+%    \end{macrocode}
+% \end{variable}
+%
 % \subsubsection{\textsl{setspace} package}
 %
-% \begin{macro}{\ifFN@baselinestretch}
-% \begin{macro}{\FN@singlespace}
 % Whatever we do, we are going to patch \cs@{footnotetext}; so first
 % of all, we'll check it's not been hacked by anyone other than
 % \texttt{setspace.sty} (while we're at it we also record whether
 % \texttt{setspace} is loaded).
 % so we do this here:
+% \begin{variable}{\g_@@_footnotetextbeginhook_setspace_tl}
+% Hook run by setspace code at the beginning of footnotetext.
 %    \begin{macrocode}
-\ExplSyntaxOn
-\newif\ifFN@setspace
+\tl_new:N \g_@@_footnotetextbeginhook_setspace_tl
+%    \end{macrocode}
+% \end{variable}
+%
+% Now we put \cs{g_@@_footnotetextbeginhook_setspace_tl} inside
+% \cs{g_@@_footnotetextbeginhook_tl}.
+%    \begin{macrocode}
+\tl_put_right:Nn {\g_@@_footnotetextbeginhook_tl}
+   {\g_@@_footnotetextbeginhook_setspace_tl}
+%    \end{macrocode}
+% We run this hook only if needed and to sensible default.
+%    \begin{macrocode}
 \__@@_AtEndOfPackageFile_and_now:NN {setspace} {
 \@ifpackageloaded{setspace}{%
-  \FN@setspacetrue
   \@ifclassloaded{memoir}{%
-%    \end{macrocode}
-% we're seeing \textsf{memoir}'s emulation of \textsf{setspace}
-%    \begin{macrocode}
-    \let\FN@baselinestretch\m@m@singlespace
+    \tl_gset:Nn {\g_@@_footnotetextbeginhook_setspace_tl}
+        {\cs_set_eq:NN \baselinestretch \m@m@singlespace}
   }{%
-%    \end{macrocode}
-% we're seeing \textsf{setspace} in its own right
-%    \begin{macrocode}
-    \let\FN@baselinestretch\setspace@singlespace
+    \tl_gset:Nn {\g_@@_footnotetextbeginhook_setspace_tl}
+        {\cs_set_eq:NN \baselinestretch \setspace@singlespace}
   }%
-}{%
-  \FN@setspacefalse
+}{
+  \tl_gset:Nn {\g_@@_footnotetextbeginhook_setspace_tl} {}
 }
 }
-\ExplSyntaxOff
 %    \end{macrocode}
-% \end{macro}
-% \end{macro}
+% Now we disable \textsf{setspace} stuff.
+%    \begin{macrocode}
+\AtBeginOfPackageFile{setspace}{
+  \cs_gset_eq:NN \__@@_saved_setspace_@footnotetext:N \@footnotetext
+  \cs_gset_eq:NN \__@@_saved_setspace_@mpfootnotetext:N \@mpfootnotetext
+}%
+\AtEndOfPackageFile{setspace}{
+  \cs_gset_eq:NN \@footnotetext \__@@_saved_setspace_@footnotetext:N
+  \cs_gset_eq:NN \@mpfootnotetext \__@@_saved_setspace_@mpfootnotetext:N
+}
+%    \end{macrocode}
 %
-% \subsubsection{Command}
+% \subsubsection{Margin footnote command}
 %
 % There's substantial patching to be done if we're doing paragraph
 % footnotes:
 %    \begin{macrocode}
-\ifFN@sidefn
-    \newcommand\@footmisxnotetext[1]{%
-      \marginpar{%
+\ExplSyntaxOn
+\cs_new:Nn \@@_marginpar@footnotetext:N {
+  \marginpar{
+    % hook at beginning
+    \g_@@_footnotetextbeginhook_tl
+    \reset@font\footnotesize
+    \protected@edef\@currentlabel{\csname p@footnote\endcsname\@thefnmark}%
+    \color_group_begin:
+     \@makefntext{%
+       \ignorespaces#1%
+     }%
+     \color_group_end:
+   }%
+   \FN@mf@prepare
+}
+%
 %    \end{macrocode}
-% insert compatibility code with |setspace.sty| if necessary
+%
+% \subsubsection{Paragraph footnote command}
+%
 %    \begin{macrocode}
-        \ifFN@setspace
-          \let\baselinestretch\FN@baselinestretch
-        \fi
-        \reset@font\footnotesize
-        \protected@edef\@currentlabel{%
-          \csname p@footnote\endcsname\@thefnmark
-        }%
-        \color@begingroup
-          \@makefntext{%
-            \ignorespaces#1%
-          }%
-        \color@endgroup
-      }%
-      \FN@mf@prepare
-    }%
-\else
-\ifFN@para
-  \newcommand\@footmisxnotetext[1]{%
-    \insert\footins{%
-%    \end{macrocode}
-% insert compatibility code with |setspace.sty| if necessary
-%    \begin{macrocode}
-      \ifFN@setspace
-        \let\baselinestretch\FN@baselinestretch
-      \fi
-      \reset@font\footnotesize
-      \interlinepenalty\interfootnotelinepenalty
-      \splittopskip\footnotesep
-      \splitmaxdepth \dp\strutbox
-      \floatingpenalty\@MM
-      \hsize\columnwidth
-      \@parboxrestore
-      \protected@edef\@currentlabel{\csname p@footnote\endcsname\@thefnmark}%
-      \color@begingroup
+\cs_new:Nn \@@_par@footnotetext:N {
+  \insert\footins{%
+    % hook at beginning
+    \g_@@_footnotetextbeginhook_tl
+    \reset@font\footnotesize
+    \protected@edef\@currentlabel{\csname p@footnote\endcsname\@thefnmark}%
+    \interlinepenalty\interfootnotelinepenalty
+    \splittopskip\footnotesep
+    \splitmaxdepth \dp\strutbox
+    \floatingpenalty\@MM
+    \hsize\columnwidth
+    \@parboxrestore
+    \color_group_begin:
 %    \end{macrocode}
 %
 % We set the paragraph in an \cs{hbox} and apply the fudge factor
@@ -2314,47 +2363,51 @@ Copyright
         \ht\FN@tempboxa=\dimexpr\wd\FN@tempboxa *
                           \footnotebaselineskip / \columnwidth\relax
         \box\FN@tempboxa
-      \color@endgroup
+      \color_group_end:
     }%
     \FN@mf@prepare
-  }
+}
 %    \end{macrocode}
+%
+% \subsubsection{Normal footnote}
 %
 % If we're not doing paragraph footnotes, we now simply tag a
 % \cs{FN@mf@prepare} command on the end of the definition; of course,
 % there are different definitions according as whether we're using
 % |side| footnotes\dots
 %    \begin{macrocode}
-  \else
-    \newcommand\@footmisxnotetext[1]{%
-      \insert\footins{%
-%    \end{macrocode}
-% insert compatibility code with \textsf{setspace} if necessary
-%    \begin{macrocode}
-        \ifFN@setspace
-          \let\baselinestretch\FN@baselinestretch
-        \fi
-        \reset@font\footnotesize
-        \interlinepenalty\interfootnotelinepenalty
-        \splittopskip\footnotesep
-        \splitmaxdepth \dp\strutbox
-        \floatingpenalty\@MM
-        \hsize\columnwidth
-        \@parboxrestore
-        \protected@edef\@currentlabel{%
-          \csname p@footnote\endcsname\@thefnmark
-        }%
-        \color@begingroup
-          \@makefntext{%
-            \rule\z@\footnotesep
-            \ignorespaces#1\@finalstrut\strutbox
-          }%
-        \color@endgroup
-      }%
-      \FN@mf@prepare
+\cs_new:Nn \@@_normal@footnotetext:N {
+  \insert\footins{%
+    \g_@@_footnotetextbeginhook_tl
+    \reset@font\footnotesize
+    \protected@edef\@currentlabel{\csname p@footnote\endcsname\@thefnmark}%
+    \interlinepenalty\interfootnotelinepenalty
+    \splittopskip\footnotesep
+    \splitmaxdepth \dp\strutbox
+    \floatingpenalty\@MM
+    \hsize\columnwidth
+    \@parboxrestore
+    \color_group_begin:
+    \@makefntext{%
+      \rule\z@\footnotesep
+      \ignorespaces#1\@finalstrut\strutbox
     }%
-  \fi
+    \color_group_end:
+  }%
+  \FN@mf@prepare
+}%
+%
+%    \begin{macrocode}
+\ifFN@para
+\cs_gset_eq:NN \@footmisxnotetext \@@_par@footnotetext:N
+\else
+\ifFN@sidefn
+\cs_gset_eq:NN \@footmisxnotetext \@@_marginpar@footnotetext:N
+\else
+\cs_gset_eq:NN \@footmisxnotetext \@@_normal@footnotetext:N
 \fi
+\fi
+\ExplSyntaxOff
 %    \end{macrocode}
 % Now define \cs{@footnotetext} to be \cs{@footmisxnotetext}. 
 % If setspace was loaded before \textsf{hyperref} we revert the change
@@ -2370,20 +2423,6 @@ Copyright
   }
 }
 \ExplSyntaxOff
-%    \end{macrocode}
-% Disable \textsf{setspace} hook.
-%    \begin{macrocode}
-\ExplSyntaxOn
-\AtBeginOfPackageFile{setspace}{
-  \cs_gset_eq:cc {@@_saved_setsave_@footnotetext} {@footnotetext}
-  \cs_gset_eq:cc {@@_saved_setsave_@mpfootnotetext} {@mpfootnotetext}
-}%
-\AtEndOfPackageFile{setspace}{
-  \cs_gset_eq:cc {@footnotetext} {@@_saved_setsave_@footnotetext}
-  \cs_gset_eq:cc {@mpfootnotetext} {@@_saved_setsave_@mpfootnotetext}
-}
-\ExplSyntaxOff
-%    \begin{macrocode}
 %    \end{macrocode}
 %
 % \section{Other miscellaneous commands}
