@@ -782,7 +782,35 @@ Copyright
 }
 %    \end{macrocode}
 % \end{function}
-
+%
+% \subsection{Disable patching in some package}
+%
+% \begin{function}{\__@@_disablepatchinginpackage:cN}
+%   \begin{syntax}
+%     \cs{__@@_disablepatchinginpackage:cN} \Arg{function} \Arg{package}
+%   \end{syntax}
+%   Save function at beginning of package and restore at end.
+%   Create two global token list:
+%   \begin{itemize}
+%   \item \cs{@@_save_function@package_tl} that save \marg{function} to
+%   \cs{\@@_saved_function@package_tl}.
+%   \item  \cs{@@_save_function@package_tl} that restore \marg{function} from
+%   \cs{\@@_saved_function@package_tl}.
+%   \end{itemize}
+%     \begin{macrocode}
+\cs_new:Npn \__@@_disablepatchinginpackage:cN #1#2 {
+  \tl_const:cn {@@_save_ #1 @ #2 _tl}{
+    \cs_gset_eq:cc {@@_saved_ #1 @ #2 _tl} {#1}
+  }
+  \tl_const:cn {@@_restore_ #1 @ #2 _tl}{
+    \cs_gset_eq:cc {#1} {@@_saved_ #1 @ #2 _tl}
+  }
+  \AtBeginOfPackageFile{#2}{\use:c{@@_save_ #1 @ #2 _tl}}
+  \AtEndOfPackageFile{#2}{\use:c{@@_restore_ #1 @ #2 _tl}}
+}
+%    \end{macrocode}
+% \end{function}
+%
 % \subsection{Generalities}
 %
 % We save a private macro using csname in order to use lt3doc
@@ -2215,7 +2243,7 @@ Copyright
 % \end{syntax}
 % Define \tn{@footnotemark} to \cs{@@_@footnotemark}.
 %    \begin{macrocode}
-\tl_const:Nn \@@_define_@footnotemark: {
+\tl_const:Nn \@@_define_@footnotemark_tl: {
    \cs_gset_eq:NN \@footnotemark \@@_@footnotemark
 }
 %    \end{macrocode}
@@ -2226,9 +2254,8 @@ Copyright
 % \end{syntax}
 % This \tn{@footnotemark} extended to accept star and an optionnal arg.
 %    \begin{macrocode}
-\__@@_AtEndOfPackageFile_and_now:NN {hyperref} {
-  \@@_define_@footnotemark: {}
-}
+\@@_define_@footnotemark_tl:
+\__@@_disablepatchinginpackage:cN{@footnotemark}{hyperref}
 %    \end{macrocode}
 % \end{function}
 %
@@ -2267,32 +2294,32 @@ Copyright
 \tl_put_right:Nn {\g_@@_footnotetextbeginhook_tl}
    {\g_@@_footnotetextbeginhook_setspace_tl}
 %    \end{macrocode}
+% Now define the hook used to detect setspace like feature.
+%    \begin{macrocode}
+\tl_const:Nn \g_@@_definesetspacehook_tl: {
+  \@ifpackageloaded{setspace}{%
+    \@ifclassloaded{memoir}{%
+      \tl_gset:Nn {\g_@@_footnotetextbeginhook_setspace_tl}
+      {\cs_set_eq:NN \baselinestretch \m@m@singlespace}
+    }{%
+      \tl_gset:Nn {\g_@@_footnotetextbeginhook_setspace_tl}
+      {\cs_set_eq:NN \baselinestretch \setspace@singlespace}
+    }%
+  }{
+    \tl_gset:Nn {\g_@@_footnotetextbeginhook_setspace_tl} {}
+  }
+}
+%    \end{macrocode}
 % We run this hook only if needed and to sensible default.
 %    \begin{macrocode}
 \__@@_AtEndOfPackageFile_and_now:NN {setspace} {
-\@ifpackageloaded{setspace}{%
-  \@ifclassloaded{memoir}{%
-    \tl_gset:Nn {\g_@@_footnotetextbeginhook_setspace_tl}
-        {\cs_set_eq:NN \baselinestretch \m@m@singlespace}
-  }{%
-    \tl_gset:Nn {\g_@@_footnotetextbeginhook_setspace_tl}
-        {\cs_set_eq:NN \baselinestretch \setspace@singlespace}
-  }%
-}{
-  \tl_gset:Nn {\g_@@_footnotetextbeginhook_setspace_tl} {}
-}
+  \g_@@_definesetspacehook_tl:
 }
 %    \end{macrocode}
 % Now we disable \textsf{setspace} stuff.
 %    \begin{macrocode}
-\AtBeginOfPackageFile{setspace}{
-  \cs_gset_eq:NN \__@@_saved_setspace_@footnotetext:N \@footnotetext
-  \cs_gset_eq:NN \__@@_saved_setspace_@mpfootnotetext:N \@mpfootnotetext
-}%
-\AtEndOfPackageFile{setspace}{
-  \cs_gset_eq:NN \@footnotetext \__@@_saved_setspace_@footnotetext:N
-  \cs_gset_eq:NN \@mpfootnotetext \__@@_saved_setspace_@mpfootnotetext:N
-}
+\__@@_disablepatchinginpackage:cN{@footnotetext}{setspace}
+\__@@_disablepatchinginpackage:cN{@mpfootnotetext}{setspace}
 %    \end{macrocode}
 %
 % \subsubsection{Margin footnote command}
