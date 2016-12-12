@@ -1,0 +1,993 @@
+%%
+%% This is file `footmisx.sty',
+%% generated with the docstrip utility.
+%%
+%% The original source files were:
+%%
+%% footmisx.dtx  (with options: `package')
+%% ---------------------------------------------------------------
+%% The footmisx package
+%% ---------------------------------------------------------------
+\RequirePackage{expl3}[2015/09/11]
+\RequirePackage{xparse}
+\RequirePackage{filehook}[2011/01/09]
+\ProvidesExplPackage{footmisx}{2016/12/12}{20161212}{miscellany of footnote facility}
+\ExplSyntaxOff
+\ExplSyntaxOn
+\msg_new:nnn {footmisx} {not expected definition}
+   {The~macro~#1~is~not~defined~as~expected.\\
+    The~macro~#1~could~not~be~modified~by~footmisx.\\
+    Please~report~a~bug. \\
+    Get:\\
+    #2\\
+    Expect:\\
+    #3\\
+   }
+\msg_new:nnn {footmisx} {too old}
+   {The~package~#1~is~too~old~and~thus~not~supported.\\
+    Please~install~a~newer~version~(at~least~version~#2)}
+\msg_new:nnn {footmisx} {incompatible}
+   {The~package~#1~is~incompatible~with~footmisx.\\
+    Use~the~following~workarround~#2}
+\cs_new_nopar:Nn \__footmisx_error_if_too_old:NN {
+  \AtBeginDocument{
+    \ExplSyntaxOn
+    \@ifpackageloaded{#1}{
+      \@ifpackagelater{#1}{#2}{}
+        {\msg_error:nnnn{footmisx}{too old}{#1}{#2}}
+    }{}
+    \ExplSyntaxOff
+  }
+}
+\cs_new_nopar:Nn \__footmisx_error_if_incompatible:NN {
+  \@ifpackageloaded{#1}{
+    \msg_error:nnnn{footmisx}{incompatible}{#1}{#2}
+  }{}
+  \AtBeginOfPackageFile{#1}{
+    \msg_error:nnnn{footmisx}{incompatible}{#1}{#2}
+  }
+  \AtBeginDocument{
+    \ExplSyntaxOn
+    \@ifpackageloaded{#1}{
+      \msg_error:nnnn{footmisx}{incompatible}{#1}{#2}
+    }{}
+    \ExplSyntaxOff
+  }
+}
+\__footmisx_error_if_too_old:NN{hyperref}{2016/06/24}
+\__footmisx_error_if_too_old:NN{setspace}{2011/12/19}
+\__footmisx_error_if_incompatible:NN{footnpag}{Use footmisx with option perpage}
+\__footmisx_error_if_incompatible:NN{pagefoots}{Use footmisx with option perpage}
+\__footmisx_error_if_incompatible:NN{pfnotes}{Use footmisx with option perpage}
+\__footmisx_error_if_incompatible:NN{fnpara}{Use footmisx with option para}
+\__footmisx_error_if_incompatible:NN{fnpos}{Use footmisx with option bottom}
+\cs_new:Npn \__footmisx_msg_if_neq:NNc #1#2#3 {
+  \cs_if_eq:NNTF {#1} {#2} {}
+                 {\use:c{#3}
+                   {footmisx}
+                   {not expected definition}
+                   {\exp_not:N #1}
+                   {\exp_not:N {\cs_meaning:N #1}}
+                   {\exp_not:N {\cs_meaning:N #2}}
+                 }
+}
+\cs_new:Nn \__footmisx_fatal_if_neq:NN {
+  \__footmisx_msg_if_neq:NNc {#1} {#2} {msg_fatal:nnxxx}
+}
+\cs_new:Nn \__footmisx_critical_if_neq:NN {
+  \__footmisx_msg_if_neq:NNc {#1} {#2} {msg_critical:nnxxx}
+}
+\cs_new:Nn \__footmisxerror_if_neq:NN {
+  \__footmisx_msg_if_neq:NNc {#1} {#2} {msg_error:nnxxx}
+}
+\cs_new:Nn \__footmisx_warning_if_neq:NN {
+  \__footmisx_msg_if_neq:NNc {#1} {#2} {msg_warning:nnxxx}
+}
+\cs_new:Nn \__footmisx_note_if_neq:NN {
+  \__footmisx_msg_if_neq:NNc {#1} {#2} {msg_note:nnxxx}
+}
+\cs_new:Nn \__footmisx_log_if_neq:NN {
+  \__footmisx_msg_if_neq:NNc {#1} {#2} {msg_log:nnxxx}
+}
+\group_begin:
+  \def\__footmisx_copy_@makefnmark{\hbox{\@textsuperscript{\normalfont\@thefnmark}}}
+  \__footmisx_warning_if_neq:NN {\@makefnmark} {\__footmisx_copy_@makefnmark}
+\group_end:
+\group_begin:
+\@ifpackageloaded{hyperref}
+%%hyperef case
+{
+  \def\__footmisx_copy_@footnotemark{%
+    \leavevmode
+    \ifhmode\edef\@x@sf{\the\spacefactor}\nobreak\fi
+    \stepcounter{Hfootnote}%
+    \global\let\Hy@saved@currentHref\@currentHref
+    \hyper@makecurrent{Hfootnote}%
+    \global\let\Hy@footnote@currentHref\@currentHref
+    \global\let\@currentHref\Hy@saved@currentHref
+    \hyper@linkstart{link}{\Hy@footnote@currentHref}%
+    \@makefnmark
+    \hyper@linkend
+    \ifhmode\spacefactor\@x@sf\fi
+    \relax
+  }%
+}
+%% latex case
+{
+  \def\__footmisx_copy_@footnotemark{
+    \leavevmode
+    \ifhmode\edef\@x@sf{\the\spacefactor}\nobreak\fi
+    \@makefnmark
+    \ifhmode\spacefactor\@x@sf\fi
+    \relax
+  }
+}
+\__footmisxerror_if_neq:NN {\@footnotemark} {\__footmisx_copy_@footnotemark}
+\group_end:
+\group_begin:
+\def\__footmisx_copy_footnotemark{\@ifnextchar [%]
+    \@xfootnotemark
+    {%
+      \stepcounter{footnote}%
+      \protected@xdef\@thefnmark{\thefootnote}%
+      \@footnotemark
+    }%
+}
+\__footmisxerror_if_neq:NN {\footnotemark} {\__footmisx_copy_footnotemark}
+\group_end:
+\cs_new:Npn \__footmisx_AtEndOfPackageFile_and_now:NN #1#2 {
+#2
+\AtEndOfPackageFile{#1}{#2}
+}
+\cs_new:Npn \__footmisx_disablepatchinginpackage:cN #1#2 {
+  \tl_const:cn {__footmisx_save_ #1 @ #2 _tl}{
+    \cs_gset_eq:cc {__footmisx_saved_ #1 @ #2 _tl} {#1}
+  }
+  \tl_const:cn {__footmisx_restore_ #1 @ #2 _tl}{
+    \cs_gset_eq:cc {#1} {__footmisx_saved_ #1 @ #2 _tl}
+  }
+  \AtBeginOfPackageFile{#2}{\use:c{__footmisx_save_ #1 @ #2 _tl}}
+  \AtEndOfPackageFile{#2}{\use:c{__footmisx_restore_ #1 @ #2 _tl}}
+}
+\cs_set_eq:cc {__footmisx_par} {@ @ par}
+\ExplSyntaxOff
+\newtoks\FN@temptoken
+\providecommand\protected@writeaux{%
+  \protected@write\@auxout
+}%    \end{macrocode}
+\newdimen\footnotemargin
+\footnotemargin1.8em\relax
+\DeclareOption{symbol}{\renewcommand\thefootnote{\fnsymbol{footnote}}}
+\DeclareOption{symbol*}{%
+  \renewcommand\thefootnote{\@fnsymbol\c@footnote}%
+  \AtEndOfPackage{\setfnsymbol{lamport*-robust}}%
+}
+\newif\ifFN@para  \FN@parafalse
+\DeclareOption{para}{\ifFN@sidefn
+    \PackageError{footmisx}{Option "\CurrentOption" incompatible with
+      option "side"}%
+      {I shall ignore "\CurrentOption"}%
+  \else
+    \FN@paratrue
+  \fi
+}
+\newif\ifFN@sidefn  \FN@sidefnfalse
+\DeclareOption{side}{\ifFN@para
+    \PackageError{footmisx}{Option "\CurrentOption" incompatible with
+      option "para"}%
+      {I shall ignore "\CurrentOption"}%
+  \else
+    \FN@sidefntrue
+  \fi
+}
+\let\footnotelayout\@empty
+\DeclareOption{ragged}{%
+  \@ifundefined{RaggedRight}%
+    {\renewcommand\footnotelayout{\linepenalty50 \raggedright}}%
+    {\renewcommand\footnotelayout{\linepenalty50 \RaggedRight}}%
+}
+\newif\ifFN@perpage
+\FN@perpagefalse
+\DeclareOption{perpage}{%
+  \FN@perpagetrue
+}
+\newif\ifFN@bottom  \FN@bottomfalse
+\DeclareOption{bottom}{%
+  \FN@bottomtrue
+}
+\DeclareOption{marginal}{%
+  \footnotemargin-0.8em\relax
+}
+\DeclareOption{flushmargin}{%
+  \footnotemargin0pt\relax
+}
+\newif\ifFN@hangfoot  \FN@hangfootfalse
+\DeclareOption{hang}{%
+  \FN@hangfoottrue
+}
+\newcommand*\hangfootparskip{0.5\baselineskip}
+\newcommand*\hangfootparindent{0em}%
+\DeclareOption{norule}{%
+  \renewcommand\footnoterule{}%
+  \advance\skip\footins 4\p@\@plus2\p@\relax
+}
+\DeclareOption{splitrule}{%
+  \gdef\split@prev{0}
+  \let\pagefootnoterule\footnoterule
+  \let\mpfootnoterule\footnoterule
+  \def\splitfootnoterule{\kern-3\p@ \hrule \kern2.6\p@}
+  \def\footnoterule{\relax
+    \ifx \@listdepth\@mplistdepth
+      \mpfootnoterule
+    \else
+      \ifnum\split@prev=\z@
+        \pagefootnoterule
+      \else
+        \splitfootnoterule
+      \fi
+      \xdef\split@prev{\the\insertpenalties}%
+    \fi
+  }%
+}
+\newif\ifFN@stablefootnote  \FN@stablefootnotefalse
+\DeclareOption{stable}{\FN@stablefootnotetrue}
+\newif\ifFN@multiplefootnote  \FN@multiplefootnotefalse
+\DeclareOption{multiple}{\FN@multiplefootnotetrue}
+\ProcessOptions
+\let  \if@tempswa  \ifFN@bottom
+\ifFN@para    \@tempswatrue \fi
+\if@tempswa
+  \@ifl@t@r\fmtversion{2005/12/01}{%
+    \CheckCommand*\@makecol{\ifvoid \footins
+        \setbox\@outputbox \box\@cclv
+      \else
+        \setbox\@outputbox \vbox{%
+          \boxmaxdepth \@maxdepth
+          \unvbox\@cclv
+          \vskip \skip\footins
+          \color@begingroup
+            \normalcolor\footnoterule
+            \unvbox\footins
+          \color@endgroup
+        }%
+      \fi
+      \let \@elt \relax
+      \xdef\@freelist{\@freelist\@midlist}%
+      \global\let\@midlist\@empty
+      \@combinefloats
+      \ifvbox\@kludgeins
+        \@makespecialcolbox
+      \else
+        \setbox\@outputbox \vbox to\@colht{%
+          \@texttop \dimen@\dp\@outputbox
+          \unvbox\@outputbox
+          \vskip -\dimen@\@textbottom
+        }%
+      \fi
+      \global\maxdepth\@maxdepth
+    }
+  }{%
+  \@ifl@t@r\fmtversion{2003/12/01}{%
+    \CheckCommand*\@makecol{\ifvoid \footins
+        \setbox\@outputbox \box\@cclv
+      \else
+        \setbox\@outputbox \vbox{%
+          \boxmaxdepth\@maxdepth
+          \@tempdima\dp\@cclv
+          \unvbox\@cclv
+          \vskip \skip\footins
+          \color@begingroup
+            \normalcolor
+            \footnoterule
+            \unvbox\footins
+          \color@endgroup
+        }%
+      \fi
+      \let \@elt \relax
+      \xdef\@freelist{\@freelist\@midlist}%
+      \global\let\@midlist\@empty
+      \@combinefloats
+      \ifvbox\@kludgeins
+        \@makespecialcolbox
+      \else
+        \setbox\@outputbox \vbox to\@colht{%
+          \@texttop
+          \dimen@\dp\@outputbox
+          \unvbox\@outputbox
+          \vskip -\dimen@
+          \@textbottom
+        }%
+      \fi
+      \global\maxdepth\@maxdepth
+    }%
+  }{%
+    \@ifl@t@r\fmtversion{1999/12/01}{%
+      \CheckCommand*\@makecol{\ifvoid \footins
+          \setbox\@outputbox \box\@cclv
+        \else
+          \setbox\@outputbox \vbox{%
+            \boxmaxdepth\@maxdepth
+            \@tempdima\dp\@cclv
+            \unvbox\@cclv
+            \vskip \skip\footins
+            \color@begingroup
+              \normalcolor\footnoterule
+              \unvbox\footins
+            \color@endgroup
+          }%
+        \fi
+        \xdef\@freelist{\@freelist\@midlist}%
+        \global\let\@midlist\@empty
+        \@combinefloats
+        \ifvbox\@kludgeins
+          \@makespecialcolbox
+        \else
+          \setbox\@outputbox \vbox to\@colht{%
+            \@texttop \dimen@\dp\@outputbox
+            \unvbox\@outputbox
+            \vskip -\dimen@\@textbottom
+          }%
+        \fi
+        \global\maxdepth\@maxdepth
+      }%
+    }%
+  }{%
+      \CheckCommand*\@makecol{\ifvoid \footins
+        \setbox\@outputbox \box\@cclv
+      \else
+        \setbox\@outputbox \vbox{%
+          \boxmaxdepth\@maxdepth
+          \unvbox\@cclv
+          \vskip \skip\footins
+          \color@begingroup
+            \normalcolor\footnoterule
+            \unvbox\footins
+          \color@endgroup
+        }%
+      \fi
+      \xdef\@freelist{\@freelist\@midlist}%
+      \global\let\@midlist\@empty
+      \@combinefloats
+      \ifvbox\@kludgeins
+        \@makespecialcolbox
+      \else
+        \setbox\@outputbox \vbox to\@colht{%
+          \@texttop \dimen@\dp\@outputbox
+          \unvbox\@outputbox
+          \vskip -\dimen@\@textbottom
+        }%
+      \fi
+      \global\maxdepth\@maxdepth
+    }%
+  }%
+}
+  \ifFN@para
+    \FN@temptoken{%
+      \toks@\expandafter{\the\toks@
+        \vskip\skip\footins
+        \color@begingroup
+          \normalcolor\footnoterule
+          \global\setbox\FN@tempboxc\vbox{\makefootnoteparagraph}%
+          \unvbox\FN@tempboxc
+        \color@endgroup
+      }%
+    }%
+  \else
+    \FN@temptoken{%
+      \toks@\expandafter{\the\toks@
+        \vskip\skip\footins
+        \color@begingroup
+          \normalcolor\footnoterule
+          \unvbox\footins
+        \color@endgroup
+      }%
+    }%
+  \fi
+  \ifFN@bottom
+    \toks@{\setbox\@outputbox \box\@cclv
+      \xdef\@freelist{\@freelist\@midlist}%
+      \global\let\@midlist\@empty
+      \@combinefloats
+      \ifvoid\footins
+      \else
+        \setbox\@outputbox \vbox\bgroup
+          \boxmaxdepth\@maxdepth
+          \unvbox\@outputbox
+          \vfill\relax
+    }
+    \the\FN@temptoken
+    \toks@\expandafter{\the\toks@\egroup\fi}
+  \else
+    \toks@{\ifvoid\footins
+        \setbox\@outputbox\box\@cclv
+      \else
+        \setbox\@outputbox \vbox\bgroup
+        \boxmaxdepth\@maxdepth
+        \unvbox\@cclv
+    }
+    \the\FN@temptoken
+    \toks@\expandafter{\the\toks@
+      \egroup
+      \fi
+      \xdef\@freelist{\@freelist\@midlist}%
+      \global\let\@midlist\@empty
+      \@combinefloats
+    }%
+  \fi
+  \toks@\expandafter{\the\toks@
+    \ifvbox\@kludgeins
+      \@makespecialcolbox
+    \else
+      \setbox\@outputbox \vbox to\@colht{%
+        \@texttop \dimen@\dp\@outputbox
+        \unvbox\@outputbox
+        \vskip -\dimen@\@textbottom
+      }%
+    \fi
+    \global\maxdepth\@maxdepth
+  }
+  \edef\@makecol{\the\toks@}
+\fi
+\ifFN@para
+  \let\FN@tempboxa\@tempboxa
+  \newbox\FN@tempboxb
+  \newbox\FN@tempboxc
+  \newskip\footglue \footglue=1em plus.3em minus.3em
+  \long\def\@makefntext#1{\leavevmode
+    \textfootmark{\@thefnmark}\nobreak
+    \hskip.5em\relax#1%
+  }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  \newdimen\footnotebaselineskip
+  {%
+    \footnotesize
+    \global
+      \footnotebaselineskip=\normalbaselineskip
+  }
+  \long\def\makefootnoteparagraph{\unvbox\footins \makehboxofhboxes
+    \setbox\FN@tempboxa=\hbox{\unhbox\FN@tempboxa \removehboxes}
+    \hsize\columnwidth
+    \@parboxrestore
+    \baselineskip=\footnotebaselineskip
+    \noindent
+    \rule{\z@}{\footnotesep}%
+    \unhbox\FN@tempboxa\par
+  }
+  \def\makehboxofhboxes{\setbox\FN@tempboxa=\hbox{}%
+    \loop
+      \setbox\FN@tempboxb=\lastbox
+      \ifhbox\FN@tempboxb
+      \setbox\FN@tempboxa=\hbox{\box\FN@tempboxb\unhbox\FN@tempboxa}%
+    \repeat
+  }
+  \def\removehboxes{\setbox\FN@tempboxa=\lastbox
+    \ifhbox
+      \FN@tempboxa{\removehboxes}%
+      \unhbox\FN@tempboxa
+    \fi
+  }
+\fi
+\ifFN@perpage
+  \RequirePackage{perpage}
+  \MakePerPage{footnote}
+\fi
+\ifFN@para
+\else
+  \long\def\@makefntext#1{%
+    \ifFN@hangfoot
+      \bgroup
+      \setbox\@tempboxa\hbox{%
+        \ifdim\footnotemargin>0pt
+          \hb@xt@\footnotemargin{\textfootmark{\@thefnmark}\hss}%
+        \else
+          \textfootmark{\@thefnmark}
+        \fi
+      }%
+      \leftmargin\wd\@tempboxa
+      \rightmargin\z@
+      \linewidth \columnwidth
+      \advance \linewidth -\leftmargin
+      \parshape \@ne \leftmargin \linewidth
+      \footnotesize
+      \@setpar{{\__footmisxpar}}%
+      \leavevmode
+      \llap{\box\@tempboxa}%
+      \parskip\hangfootparskip\relax
+      \parindent\hangfootparindent\relax
+    \else
+      \parindent1em
+      \noindent
+      \ifdim\footnotemargin>\z@
+        \hb@xt@ \footnotemargin{\hss\textfootmark{\@thefnmark}}%
+      \else
+        \ifdim\footnotemargin=\z@
+          \llap{\textfootmark{\@thefnmark}}%
+        \else
+          \llap{\hb@xt@ -\footnotemargin{\textfootmark{\@thefnmark}\hss}}%
+        \fi
+      \fi
+    \fi
+    \footnotelayout#1%
+    \ifFN@hangfoot
+      \par\egroup
+    \fi
+  }
+\fi
+\ifFN@multiplefootnote
+  \providecommand*{\multiplefootnotemarker}{3sp}
+  \providecommand*{\multfootsep}{,}
+  \def\FN@mf@prepare{%
+    \kern-\multiplefootnotemarker
+    \kern\multiplefootnotemarker\relax
+  }
+  \def\FN@mf@check{%
+    \ifdim\lastkern=\multiplefootnotemarker\relax
+      \edef\@x@sf{\the\spacefactor}%
+      \unkern
+      \textsuperscript{\multfootsep}%
+      \spacefactor\@x@sf\relax
+    \fi
+  }
+\else
+  \let\FN@mf@check\relax
+  \let\FN@mf@prepare\relax
+\fi
+\ifFN@stablefootnote
+\let\FN@sf@footmisx@footnote\footnote
+\def\footnote{\ifx\protect\@typeset@protect
+    \expandafter\FN@sf@footmisx@footnote
+  \else
+    \expandafter\FN@sf@gobble@opt
+  \fi
+}
+\edef\FN@sf@gobble@opt{\noexpand\protect
+  \expandafter\noexpand\csname FN@sf@gobble@opt \endcsname}
+\expandafter\def\csname FN@sf@gobble@opt \endcsname{%
+  \@ifnextchar[%]
+    \FN@sf@gobble@twobracket
+    \@gobble
+}
+\def\FN@sf@gobble@twobracket[#1]#2{}
+\let\FN@sf@footmisx@footnotemark\footnotemark
+\def\footnotemark{\ifx\protect\@typeset@protect
+    \expandafter\FN@sf@footmisx@footnotemark
+  \else
+    \expandafter\FN@sf@gobble@optonly
+  \fi
+}
+\edef\FN@sf@gobble@optonly{\noexpand\protect
+  \expandafter\noexpand\csname FN@sf@gobble@optonly \endcsname}
+\expandafter\def\csname FN@sf@gobble@optonly \endcsname{%
+  \@ifnextchar[%]
+    \FN@sf@gobble@bracket
+    {}%
+}
+\def\FN@sf@gobble@bracket[#1]{}
+\fi
+\newcommand\setfnsymbol[1]{%
+  \@bsphack
+  \@ifundefined{FN@fnsymbol@#1}%
+  {%
+    \PackageError{footmisx}{Symbol style "#1" not known}%
+    \@eha
+  }{%
+    \expandafter\let\expandafter\@fnsymbol\csname
+                        FN@fnsymbol@#1\endcsname
+  }%
+  \@esphack
+}
+\let\FN@fnsymbol@lamport\@fnsymbol
+\newif\if@tempswb
+\newcommand{\DefineFNsymbols}{%
+        \@ifstar{\@tempswbtrue\@DefineFNsymbols}%
+                {\@tempswbfalse\@DefineFNsymbols}%
+}
+\newcommand{\@DefineFNsymbols}[1]{%
+  \@ifnextchar[% ]
+    {\@DefineFNsymbols@{#1}}{\@DefineFNsymbols@{#1}[text]}%
+}
+\def\@DefineFNsymbols@#1[#2]#3{%
+  \expandafter\ifx\csname FN@fnsymbol@#1\endcsname\relax
+    \PackageInfo{footmisx}{Declaring symbol style #1}%
+  \else
+    \PackageWarning{footmisx}{Redeclaring symbol style #1}%
+  \fi
+  \toks@{}%
+  \def\@tempb{\end}%
+  \FN@build@symboldef#3\end
+  \def\@tempc{math}%
+  \def\@tempd{#2}%
+  \expandafter\xdef\csname FN@fnsymbol@#1\endcsname##1{%
+    \ifx\@tempc\@tempd
+      \noexpand\ensuremath
+    \else
+      \noexpand\nfss@text
+    \fi
+    {%
+      \noexpand\ifcase##1%
+      \the\toks@
+      \noexpand\else
+      \if@tempswb
+        \noexpand\@ctrerr
+      \else
+        \noexpand\@arabic##1\noexpand\FN@orange##1%
+      \fi
+      \noexpand\fi
+    }%
+  }%
+}
+\def\FN@build@symboldef#1{%
+  \def\@tempa{#1}%
+  \ifx\@tempa\@tempb
+  \else
+    \toks@\expandafter{\the\toks@\or#1}%
+    \expandafter\FN@build@symboldef
+  \fi
+}
+\newcommand{\DefineFNsymbolsTM}{%
+        \@ifstar{\@tempswbtrue\@DefineFNsymbolsTM}%
+                {\@tempswbfalse\@DefineFNsymbolsTM}}%
+\newcommand{\@DefineFNsymbolsTM}[2]{%
+  \expandafter\ifx\csname FN@fnsymbol@#1\endcsname\relax
+    \PackageInfo{footmisx}{Declaring symbol style #1}%
+  \else
+    \PackageWarning{footmisx}{Redeclaring symbol style #1}%
+  \fi
+  \toks@{}%
+  \def\@tempb{\end}%
+  \FN@build@symboldefTM#2\end\@null
+  \expandafter\xdef\csname FN@fnsymbol@#1\endcsname##1{%
+    \noexpand\ifcase##1%
+      \the\toks@
+    \noexpand\else
+      \if@tempswb
+        \noexpand\@ctrerr
+      \else
+        \noexpand\@arabic##1\noexpand\FN@orange##1%
+      \fi
+    \noexpand\fi
+  }%
+}%
+\def\FN@build@symboldefTM#1#2{%
+  \def\@tempa{#1}%
+  \ifx\@tempa\@tempb
+  \else
+    \toks@\expandafter{\the\toks@\or\TextOrMath{#1}{#2}}%
+    \expandafter\FN@build@symboldefTM
+  \fi
+}
+\@ifundefined{TextOrMath}{%
+  \@ifundefined{eTeXversion}{%
+    \PackageError{footmisx}{Can't define commands for footnote symbol}%
+                           {Use e-LaTeX, or load package fixltx2e before
+                             footmisx}%
+  }{%
+    \protected\expandafter\def\csname TextOrMath\space\endcsname{%
+      \ifmmode \expandafter\@secondoftwo
+      \else    \expandafter\@firstoftwo   \fi
+    }
+    \edef\TextOrMath#1#2{%
+      \expandafter\noexpand\csname TextOrMath\space\endcsname
+        {#1}{#2}%
+    }%
+  }%
+}{}
+\def\FN@orange#1{%
+  \@bsphack
+  \PackageInfo{footmisx}{Footnote number \number#1 out of range}%
+  \protect\@fnsymbol@orange
+  \@esphack
+}
+\global\let\@diagnose@fnsymbol@orange\relax
+\AtEndDocument{\@diagnose@fnsymbol@orange}
+\def\@fnsymbol@orange{%
+  \gdef\@diagnose@fnsymbol@orange{%
+    \PackageWarningNoLine{footmisx}{Some footnote number(s)
+      were out of range
+      \MessageBreak
+      see log for details%
+    }%
+  }%
+}
+\@ifundefined{textbardbl}{%
+  \DeclareTextSymbol{\textbardbl}{OMS}{107}%
+  \DeclareTextSymbolDefault{\textbardbl}{TS1}}{}%
+\DefineFNsymbolsTM*{bringhurst}{%
+  \textasteriskcentered *
+  \textdagger    \dagger
+  \textdaggerdbl \ddagger
+  \textsection   \mathsection
+  \textbardbl    \|%
+  \textparagraph \mathparagraph
+}%
+\DefineFNsymbolsTM*{chicago}{%
+  \textasteriskcentered *
+  \textdagger    \dagger
+  \textdaggerdbl \ddagger
+  \textsection   \mathsection
+  \textbardbl    \|%
+  \#\#%
+}%
+\DefineFNsymbolsTM*{wiley}{
+  \textasteriskcentered *
+  {\textasteriskcentered\textasteriskcentered}{**}%
+  \textdagger    \dagger
+  \textdaggerdbl \ddagger
+  \textsection   \mathsection
+  \textparagraph \mathparagraph
+  \textbardbl    \|%
+}%
+\DefineFNsymbolsTM{lamport-robust}{
+  \textasteriskcentered *
+  \textdagger    \dagger
+  \textdaggerdbl \ddagger
+  \textsection   \mathsection
+  \textparagraph \mathparagraph
+  \textbardbl    \|%
+  {\textasteriskcentered\textasteriskcentered}{**}%
+  {\textdagger\textdagger}{\dagger\dagger}%
+  {\textdaggerdbl\textdaggerdbl}{\ddagger\ddagger}%
+}
+\DefineFNsymbolsTM*{lamport*}{%
+  \textasteriskcentered *
+  \textdagger    \dagger
+  \textdaggerdbl \ddagger
+  \textsection   \mathsection
+  \textparagraph \mathparagraph
+  \textbardbl    \|%
+  {\textasteriskcentered\textasteriskcentered}{**}%
+  {\textdagger\textdagger}{\dagger\dagger}%
+  {\textdaggerdbl\textdaggerdbl}{\ddagger\ddagger}%
+  {\textsection\textsection}{\mathsection\mathsection}%
+  {\textparagraph\textparagraph}{\mathparagraph\mathparagraph}%
+  {\textasteriskcentered\textasteriskcentered\textasteriskcentered}{***}%
+  {\textdagger\textdagger\textdagger}{\dagger\dagger\dagger}%
+  {\textdaggerdbl\textdaggerdbl\textdaggerdbl}{\ddagger\ddagger\ddagger}%
+  {\textsection\textsection\textsection}%%
+    {\mathsection\mathsection\mathsection}%
+  {\textparagraph\textparagraph\textparagraph}%%
+    {\mathparagraph\mathparagraph\mathparagraph}%
+}
+\setfnsymbol{lamport*}
+\DefineFNsymbolsTM{lamport*-robust}{%
+  \textasteriskcentered *
+  \textdagger    \dagger
+  \textdaggerdbl \ddagger
+  \textsection   \mathsection
+  \textparagraph \mathparagraph
+  \textbardbl    \|%
+  {\textasteriskcentered\textasteriskcentered}{**}%
+  {\textdagger\textdagger}{\dagger\dagger}%
+  {\textdaggerdbl\textdaggerdbl}{\ddagger\ddagger}%
+  {\textsection\textsection}{\mathsection\mathsection}%
+  {\textparagraph\textparagraph}{\mathparagraph\mathparagraph}%
+  {\textasteriskcentered\textasteriskcentered\textasteriskcentered}{***}%
+  {\textdagger\textdagger\textdagger}{\dagger\dagger\dagger}%
+  {\textdaggerdbl\textdaggerdbl\textdaggerdbl}{\ddagger\ddagger\ddagger}%
+  {\textsection\textsection\textsection}%%
+    {\mathsection\mathsection\mathsection}%
+  {\textparagraph\textparagraph\textparagraph}%%
+    {\mathparagraph\mathparagraph\mathparagraph}%
+}
+\ExplSyntaxOn
+\cs_new_nopar:Nn \__footmisx_noHref:n {\ref{#1}}
+\tl_const:Nn \__footmisx_define__footmisx_noHref: {
+  \@ifpackageloaded{hyperref}{
+    \cs_gset:Nn \__footmisx_noHref:n {\ref*{#1}}
+  }
+  {
+    \cs_gset:Nn \__footmisx_noHref:n {\ref{#1}}
+  }
+}
+\__footmisx_AtEndOfPackageFile_and_now:NN {hyperref}{
+  \__footmisx_define__footmisx_noHref: {}
+}
+\cs_new_nopar:Nn \__footmisx_@makefnmarklink:n {\textfootmark{#1}}
+\cs_new_eq:NN \__footmisx_noref_@makefnmarklink:n \__footmisx_@makefnmarklink:n
+\cs_new_nopar:Nn \__footmisx_hyperref_@makefnmarklink:n {
+    \__footmisx_noref_@makefnmarklink:n {
+    \stepcounter{Hfootnote}%
+    \global\let\Hy@saved@currentHref\@currentHref
+    \hyper@makecurrent{Hfootnote}%
+    \global\let\Hy@footnote@currentHref\@currentHref
+    \global\let\@currentHref\Hy@saved@currentHref
+    \hyper@linkstart{link}{\Hy@footnote@currentHref}%
+    #1
+    \hyper@linkend
+    }
+}
+\tl_const:Nn \__footmisx_define__footmisx_@makefnmarklink: {
+  \@ifpackageloaded{hyperref}{
+    \ifHy@hyperfootnotes
+       \cs_gset_eq:NN \__footmisx_@makefnmarklink:n \__footmisx_hyperref_@makefnmarklink:n
+    \else
+       \cs_gset_eq:NN \__footmisx_@makefnmarklink:n \__footmisx_noref_@makefnmarklink:n
+    \fi
+  }
+  {
+    \cs_gset_eq:NN \__footmisx_@makefnmarklink:n \__footmisx_noref_@makefnmarklink:n
+  }
+}
+\__footmisx_AtEndOfPackageFile_and_now:NN {hyperref} {
+  \__footmisx_define__footmisx_@makefnmarklink: {}
+}
+\cs_new_nopar:Nn \__footmisx_@makefnmarklink_stared:Nn {
+  \IfBooleanTF{#1}
+    {\__footmisx_noref_@makefnmarklink:n{#2}}
+    {\__footmisx_@makefnmarklink:n{#2}}
+}
+\DeclareDocumentCommand{\__footmisx_makefnmarklink}
+  {sO{\@thefnmark}}
+  {\__footmisx_@makefnmarklink_stared:Nn{#1}{#2}
+}
+
+\cs_set_eq:NN \__footmisx_orig_@makefnmark \@makefnmark
+\cs_set_eq:NN \@makefnmark \__footmisx_makefnmarklink
+\cs_new_nopar:Nn \__footmisx_@footnotemark_stared:Nn {
+  \leavevmode
+  \mode_if_horizontal:TF
+  {
+    \edef\@x@sf{\the\spacefactor}
+    \FN@mf@check
+    \nobreak
+  }
+  {}
+  \__footmisx_@makefnmarklink_stared:Nn{#1}{#2}
+  \FN@mf@prepare
+  \mode_if_horizontal:TF
+  {\spacefactor\@x@sf}
+  {}
+  \relax
+}
+\DeclareDocumentCommand{\__footmisx_@footnotemark}{sO{\@thefnmark}}{
+   \__footmisx_@footnotemark_stared:Nn{#1}{#2}
+}
+\tl_const:Nn \__footmisx_define_@footnotemark_tl: {
+   \cs_gset_eq:NN \@footnotemark \__footmisx_@footnotemark
+}
+\__footmisx_define_@footnotemark_tl:
+\__footmisx_disablepatchinginpackage:cN{@footnotemark}{hyperref}
+\tl_new:N \g__footmisx_footnotetextbeginhook_tl
+\tl_new:N \g__footmisx_footnotetextbeginhook_setspace_tl
+\tl_put_right:Nn {\g__footmisx_footnotetextbeginhook_tl}
+   {\g__footmisx_footnotetextbeginhook_setspace_tl}
+\tl_const:Nn \g__footmisx_definesetspacehook_tl: {
+  \@ifpackageloaded{setspace}{%
+    \@ifclassloaded{memoir}{%
+      \tl_gset:Nn {\g__footmisx_footnotetextbeginhook_setspace_tl}
+      {\cs_set_eq:NN \baselinestretch \m@m@singlespace}
+    }{%
+      \tl_gset:Nn {\g__footmisx_footnotetextbeginhook_setspace_tl}
+      {\cs_set_eq:NN \baselinestretch \setspace@singlespace}
+    }%
+  }{
+    \tl_gset:Nn {\g__footmisx_footnotetextbeginhook_setspace_tl} {}
+  }
+}
+\__footmisx_AtEndOfPackageFile_and_now:NN {setspace} {
+  \g__footmisx_definesetspacehook_tl:
+}
+\__footmisx_disablepatchinginpackage:cN{@footnotetext}{setspace}
+\__footmisx_disablepatchinginpackage:cN{@mpfootnotetext}{setspace}
+\ExplSyntaxOn
+\cs_new:Nn \__footmisx_marginpar@footnotetext:N {
+  \marginpar{
+    % hook at beginning
+    \g__footmisx_footnotetextbeginhook_tl
+    \reset@font\footnotesize
+    \protected@edef\@currentlabel{\csname p@footnote\endcsname\@thefnmark}%
+    \color_group_begin:
+     \@makefntext{%
+       \ignorespaces#1%
+     }%
+     \color_group_end:
+   }%
+   \FN@mf@prepare
+}
+\cs_new:Nn \__footmisx_par@footnotetext:N {
+  \insert\footins{%
+    % hook at beginning
+    \g__footmisx_footnotetextbeginhook_tl
+    \reset@font\footnotesize
+    \protected@edef\@currentlabel{\csname p@footnote\endcsname\@thefnmark}%
+    \interlinepenalty\interfootnotelinepenalty
+    \splittopskip\footnotesep
+    \splitmaxdepth \dp\strutbox
+    \floatingpenalty\@MM
+    \hsize\columnwidth
+    \@parboxrestore
+    \color_group_begin:
+        \setbox\FN@tempboxa=\hbox{%
+          \@makefntext{\ignorespaces#1\strut
+            \penalty-10\relax
+            \hskip\footglue
+          }% end of \@makefntext parameter
+        }% end of \hbox
+        \dp\FN@tempboxa=0pt
+        \ht\FN@tempboxa=\dimexpr\wd\FN@tempboxa *
+                          \footnotebaselineskip / \columnwidth\relax
+        \box\FN@tempboxa
+      \color_group_end:
+    }%
+    \FN@mf@prepare
+}
+\cs_new:Nn \__footmisx_normal@footnotetext:N {
+  \insert\footins{%
+    \g__footmisx_footnotetextbeginhook_tl
+    \reset@font\footnotesize
+    \protected@edef\@currentlabel{\csname p@footnote\endcsname\@thefnmark}%
+    \interlinepenalty\interfootnotelinepenalty
+    \splittopskip\footnotesep
+    \splitmaxdepth \dp\strutbox
+    \floatingpenalty\@MM
+    \hsize\columnwidth
+    \@parboxrestore
+    \color_group_begin:
+    \@makefntext{%
+      \rule\z@\footnotesep
+      \ignorespaces#1\@finalstrut\strutbox
+    }%
+    \color_group_end:
+  }%
+  \FN@mf@prepare
+}%
+\ifFN@para
+\cs_gset_eq:NN \@footmisxnotetext \__footmisx_par@footnotetext:N
+\else
+\ifFN@sidefn
+\cs_gset_eq:NN \@footmisxnotetext \__footmisx_marginpar@footnotetext:N
+\else
+\cs_gset_eq:NN \@footmisxnotetext \__footmisx_normal@footnotetext:N
+\fi
+\fi
+\ExplSyntaxOff
+\ExplSyntaxOn
+\__footmisx_AtEndOfPackageFile_and_now:NN {hyperref} {
+  \@ifpackageloaded{hyperref}
+  {
+    \cs_gset_eq:cc {H @ @ footnotetext} {@footmisxnotetext}
+  }{
+    \cs_gset_eq:cc {@footnotetext} {@footmisxnotetext}
+  }
+}
+\ExplSyntaxOff
+\ExplSyntaxOn
+\NewDocumentCommand{\textfootmark}{m}
+    {\hbox{\@textsuperscript{\normalfont#1}}}
+\ExplSyntaxOff
+\ExplSyntaxOn
+\cs_new_nopar:Nn \__footmisx_footref_stared:Nn {
+  \textfootmark{
+    \IfBooleanTF{#1}
+      {\__footmisx_noHref:n{#2}}
+      {\ref{#2}}
+  }
+}
+\DeclareDocumentCommand {\__footmisx_footref} {s m}
+{
+    \__footmisx_footref_stared:Nn{#1}{#2}
+}
+\ExplSyntaxOff
+\ExplSyntaxOn
+\__footmisx_AtEndOfPackageFile_and_now:NN {hyperref} {\cs_gset_eq:NN \footref \__footmisx_footref}
+\ExplSyntaxOff
+\ExplSyntaxOn
+\DeclareDocumentCommand\mpfootnotemark{o}
+{
+  \IfValueTF {#1}
+  {
+    \group_begin:
+    \cs_set:cpn {c@\@mpfn} {#1}
+    \unrestored@protected@xdef\@thefnmark{\thempfn}
+    \group_end:
+  }
+  {
+    \stepcounter\@mpfn
+    \protected@xdef\@thefnmark{\thempfn}
+  }
+  \@footnotemark
+}
+\ExplSyntaxOff
+%% Copyright
+%%
+%% End of file `footmisx.sty'.
