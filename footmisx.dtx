@@ -3,9 +3,14 @@
 \iffalse
 %</internal>
 %<*readme>
-This package is based on Robin Fairbairns footmisc package
+This package is based on Robin Fairbairns footmisc package.
 
-It allow to personnalize footnote on LaTeX
+Copyright 2016 Bastien Roucari\`es
+Copyright 1995, 1996, 1998, 1999, 2001--2003, 2008, 2009 Robin Fairbairns
+
+It allow to personnalize footnote on LaTeX.
+
+Last version is found here https://github.com/bastien-roucaries/footmisx
 %</readme>
 %<*internal>
 \fi
@@ -49,7 +54,7 @@ Copyright
 \RequirePackage{expl3}[2015/09/11]
 \RequirePackage{xparse}
 \RequirePackage{filehook}[2011/01/09]
-\ProvidesExplPackage{footmisx}{2016/12/01}{20161201}{miscellany of footnote facility}
+\ProvidesExplPackage{footmisx}{2016/12/12}{20161212}{miscellany of footnote facility}
 \ExplSyntaxOff
 %</driver|package>
 %    \end{macrocode}
@@ -62,6 +67,8 @@ Copyright
 \documentclass{l3doc}
 \usepackage{hyperref}
 \usepackage{footmisx}
+\newcommand{\mailto}[1]{\href{mailto:#1}{\nolinkurl{#1}}}
+
 %    \end{macrocode}
 %
 % we limit the things that we will index
@@ -103,11 +110,8 @@ Copyright
 %        a portmanteau package\\
 %        for customising footnotes in \LaTeX\thanks{This file has
 %          version number \fileversion, last revised \filedate}}
-% \author{Bastien Roucari\`es formerly
-%     Robin Fairbairns\thanks{University of Cambridge Computer
-%     Laboratory, William Gates Building, J.\,J. Thompson Avenue,
-%     Cambridge, CB2 0FD, UK
-%     (\texttt{rf10<snail-shape>cam.ac.uk})}}
+% \author{Bastien Roucari\`es\thanks{\mailto{roucaries.bastien+footmisx@gmail.com}} formerly
+%     Robin Fairbairns}
 % \maketitle
 %
 % \tableofcontents{}
@@ -115,8 +119,8 @@ Copyright
 % \section*{Copyright statement}
 %
 % \noindent Program: \texttt{footmisx.dtx}\par
-% \noindent Copyright 1995 1996 1998 1999 2001--2003 2008 2009 Robin Fairbairns
 % \noindent Copyright 2016 Bastien Roucari\`es
+% \noindent Copyright 1995 1996 1998 1999 2001--2003 2008 2009 Robin Fairbairns
 %
 % This program is offered under the terms
 % of the LaTeX Project Public License, version 1.3c of this license or
@@ -140,7 +144,8 @@ Copyright
 % used by a package written by Mark Wooding.  So the package is now
 % known (as you can see) as ``footmisc''.
 %
-% In 2016 it was forked as footmisx
+% In 2016 it was forked as footmisx. Last version could be found at
+% \url{https://github.com/bastien-roucaries/footmisx}
 %
 % \section{User interface~--- package options}
 %
